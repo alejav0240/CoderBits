@@ -32,6 +32,7 @@ export const useMitigations = (initialPage = 1, initialLimit = 10) => {
             });
         } catch (err) {
             setError(err.message);
+            console.error('Error fetching mitigations:', err);
         } finally {
             setLoading(false);
         }
@@ -68,3 +69,5 @@ export const useMitigations = (initialPage = 1, initialLimit = 10) => {
         changeLimit: (limit) => fetchMitigations(1, limit, filters)
     };
 };
+
+export default useMitigations;
