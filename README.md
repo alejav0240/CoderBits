@@ -101,20 +101,10 @@ Para exportar las dependencias instaladas:
 
 pip freeze > requirements.txt
 
-
 Esto facilita instalar todo en otro equipo con:
 
 pip install -r requirements.txt
-
-Aquí tienes la documentación de los endpoints de tu API, diseñada para ser incluida en tu archivo `README.md`, justo después de la sección de configuración del proyecto.
-
-Se asume una arquitectura **RESTful** (como es común en Django REST Framework), donde las rutas corresponden a los recursos de tus aplicaciones.
-
----
-¡Absolutamente! La documentación de los endpoints en formato de lista sin tablas es mucho más amigable para un README. Esto simplifica la visualización y se ajusta al formato que solicitaste.
-
-Aquí tienes la versión lista para copiar y pegar, incluyendo el endpoint de Dashboard:
-
+git c
 💻 Endpoints de la API
 La API de CoderBits expone las siguientes rutas para interactuar con los datos de captura de red y gestión del sistema. Todas las rutas siguen una convención RESTful y están precedidas por la base /api/.
 
