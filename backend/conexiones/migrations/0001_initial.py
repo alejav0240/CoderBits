@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
                 ('ip_dst', models.CharField(max_length=45)),
                 ('port_dst', models.IntegerField()),
                 ('etiqueta', models.CharField(max_length=50)),
-                ('confianza', models.IntegerField(blank=True, null=True)),
+                ('protocolo', models.CharField(max_length=50)),
             ],
         ),
     ]
