@@ -154,3 +154,17 @@ Gestiona las estrategias o acciones de mitigación implementadas.
 * GET /api/mitigaciones/ - Lista todas las estrategias de mitigación.
 
 * GET /api/mitigaciones/<id>/ - Recupera los detalles de una mitigación específica.
+
+Ejecución de Simulación de Ataque
+Para simular el ataque usando el script de Python, solo necesitas navegar al directorio y ejecutar el comando.
+
+1. Ir al directorio:
+
+Bash
+
+cd backend/ataques/
+2. Ejecutar la simulación:
+
+Bash
+
+python traffic_simulator_no_api.py -t ip_del_dispositivo -m all -d 15 --threads 4
