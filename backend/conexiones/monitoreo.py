@@ -9,6 +9,8 @@ from django.utils import timezone
 from django.db import close_old_connections
 from .models import Conexion
 from ataques.models import Ataque
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 monitor_activo_event = threading.Event()  
 sniffer_iniciado = False
@@ -110,6 +112,24 @@ def packet_callback(packet):
             port_dst=(None if puerto_destino in [None, "-", ""] else puerto_destino), # <--- Aquí se genera el None
             etiqueta=etiqueta,
             protocolo=protocolo
+        )
+
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            "monitoreo",
+            {
+                "type": "enviar_datos",
+                "data": {
+                    "tipo_evento": "conexion",
+                    "conexion": {
+                        "ip_src": ip_origen,
+                        "ip_dst": ip_destino,
+                        "port_dst": puerto_destino if puerto_destino not in [None, "-", ""] else None,
+                        "protocolo": protocolo,
+                        "timestamp": timestamp.isoformat(),
+                    }
+                }
+            }
         )
     except Exception as e:
         print("[monitoreo] Error guardando Conexion:", e)
