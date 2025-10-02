@@ -5,10 +5,6 @@ from mitigaciones.models import Mitigacion
 
 @receiver(post_save, sender=Ataque)
 def crear_mitigacion(sender, instance, created, **kwargs):
-    """
-    Crea un registro de mitigación para el ataque,
-    pero no ejecuta ningún bloqueo automáticamente.
-    """
     if not created:
         return  
 
@@ -16,7 +12,7 @@ def crear_mitigacion(sender, instance, created, **kwargs):
     ip = instance.ip_origen or "desconocida"
     detalle = ""
     resultado = "Mitigación pendiente de activación manual"
-    activo = False  # Por defecto, no activa
+    activo = False 
 
     if tipo in ["neptune", "ddos"]:
         detalle = f"Bloqueo recomendado por ataque tipo {tipo.upper()}"
@@ -27,9 +23,10 @@ def crear_mitigacion(sender, instance, created, **kwargs):
 
     Mitigacion.objects.create(
         ataque=instance,
+        ip=ip,
         detalle=detalle,
         activo=activo,
         resultado=resultado
     )
 
-    print(f"🛡️ Mitigación registrada para {tipo.upper()} — pendiente de activación manual")
+    print(f"[signals] Mitigación registrada para {tipo.upper()} — pendiente de activación manual")

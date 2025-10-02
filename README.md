@@ -164,6 +164,24 @@ Gestiona las estrategias o acciones de mitigación implementadas.
 
 * POST /api/mitigaciones/<id>/activar/ - Realizar una mitigacion.
 
+* POST /api/mitigaciones/<id>/activar/ - Bloquea la ip en nivel firewall
+
+* POST /api/mitigaciones/<id>/desactivar/ - Quita el bloqueo de la ip
+
 6. WebSocket
 
 * ws://127.0.0.1:8000/ws/monitoreo/ 
+
+Ejecución de Simulación de Ataque
+Para simular el ataque usando el script de Python, solo necesitas navegar al directorio y ejecutar el comando(script en ataques).
+
+1. Ir al directorio:
+
+Bash
+
+cd backend/ataques/
+2. Ejecutar la simulación:
+
+Bash
+
+python traffic_simulator_no_api.py -t ip_del_dispositivo -m all -d 15 --threads 4

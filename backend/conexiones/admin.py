@@ -1,7 +1,6 @@
 # conexiones/admin.py
 from django.contrib import admin
 from .models import Conexion
-from .monitoreo import monitor_activo  # importamos la variable global
 from django.http import HttpResponse
 
 @admin.register(Conexion)

@@ -4,5 +4,5 @@ from .models import Mitigacion
 class MitigacionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Mitigacion
-        fields = "__all__"
+        fields = ['id', 'ataque', 'ip', 'detalle', 'ejecutado_por', 'activo', 'fecha_mitigacion', 'resultado']
 

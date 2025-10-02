@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS conexiones (
     hora TIMESTAMP NOT NULL,
     ip_src VARCHAR(45) NOT NULL,
     ip_dst VARCHAR(45) NOT NULL,
-    port_dst INT NOT NULL,
+    port_dst INT,
     etiqueta VARCHAR(50) NOT NULL,
     protocolo VARCHAR(50) NOT NULL
 );
@@ -56,6 +56,7 @@ CREATE INDEX IF NOT EXISTS idx_fecha_detectado ON ataques(fecha_detectado);
 CREATE TABLE IF NOT EXISTS mitigaciones (
     id_mitigacion SERIAL PRIMARY KEY,
     id_ataque INT NOT NULL,
+    ip VARCHAR(45) not null,
     detalle TEXT NULL,
     ejecutado_por INT NULL,
     activo BOOLEAN DEFAULT TRUE,
@@ -94,7 +95,7 @@ VALUES
 ('DoS', 'Ataque de denegación de servicio detectado', '192.168.1.50', '192.168.1.1', 80, 150, TRUE),
 ('Port Scan', 'Escaneo de puertos detectado', '192.168.1.51', '192.168.1.1', 22, 50, TRUE);
 
-INSERT INTO mitigaciones (id_ataque, detalle, ejecutado_por, activo, resultado)
+INSERT INTO mitigaciones (id_ataque, ip, detalle, ejecutado_por, activo, resultado)
 VALUES
-(1, 'Bloqueo de IP en firewall', 1, TRUE, 'Éxito'),
-(2, 'Notificación al administrador', 1, TRUE, 'Pendiente');
+(1, '192.168.1.50', 'Bloqueo de IP en firewall', 1, TRUE, 'Éxito'),
+(2, '192.168.1.51', 'Notificación al administrador', 1, TRUE, 'Pendiente');
