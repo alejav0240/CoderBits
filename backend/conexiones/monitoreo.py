@@ -1,4 +1,3 @@
-# conexiones/monitoreo.py
 from scapy.all import sniff
 from scapy.layers.inet import IP, TCP, UDP, ICMP
 from scapy.layers.inet6 import IPv6

@@ -60,6 +60,9 @@ http://127.0.0.1:8000/admin/
 
 🚀 Levantar servidor de desarrollo
 python manage.py runserver
+🚀 Levantar servidor con webSocket
+daphne -p 8000 mi_api_django.asgi:application
+
 
 
 Visitar en el navegador:
@@ -115,6 +118,10 @@ Gestiona los registros de tráfico de red capturado.
 
 * GET /api/conexiones/<id>/ - Recupera los detalles de una conexión específica.
 
+* GET /api/monitoreo/activar/ - Inicia el monitoreo de tráfico.
+
+* GET /api/monitoreo/desactivar/ - Inicia el monitoreo de tráfico.
+
 2. Roles (roles) 🛡️
 Permite la gestión de roles de usuario para el control de acceso.
 
@@ -154,3 +161,9 @@ Gestiona las estrategias o acciones de mitigación implementadas.
 * GET /api/mitigaciones/ - Lista todas las estrategias de mitigación.
 
 * GET /api/mitigaciones/<id>/ - Recupera los detalles de una mitigación específica.
+
+* POST /api/mitigaciones/<id>/activar/ - Realizar una mitigacion.
+
+6. WebSocket
+
+* ws://127.0.0.1:8000/ws/monitoreo/ 
