@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'conexiones',
     'ataques',
     'mitigaciones',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -76,6 +77,13 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'mi_api_django.wsgi.application'
+ASGI_APPLICATION = "mi_api_django.asgi.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    },
+}
 
 
 # Database
