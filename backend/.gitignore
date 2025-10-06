@@ -1,2 +1,4 @@
-# Archivos sensibles
-.env
+# Archivos sensibles 
+.env 
+__pycache__/ 
+*.pyc
