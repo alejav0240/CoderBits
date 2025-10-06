@@ -12,12 +12,10 @@ class PersonalSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-        # Hashea la contraseña antes de crear el usuario
         validated_data['contrasena'] = make_password(validated_data['contrasena'])
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
-        # Hashea la contraseña solo si se proporciona en la solicitud
         if 'contrasena' in validated_data:
             validated_data['contrasena'] = make_password(validated_data['contrasena'])
         return super().update(instance, validated_data)

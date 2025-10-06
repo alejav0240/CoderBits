@@ -4,10 +4,12 @@ from rest_framework.decorators import action
 from .models import Conexion 
 from .serializers import ConexionSerializer
 from .monitoreo import start_sniffer, monitor_activo_event
+from rest_framework.permissions import IsAuthenticated
 
 class ConexionViewSet(viewsets.ModelViewSet):
     queryset = Conexion.objects.all()
     serializer_class = ConexionSerializer
+    permission_classes = [IsAuthenticated]
 
     @action(detail=False, methods=['post'])
     def activar_monitoreo(self, request):
