@@ -15,6 +15,7 @@ class Migration(migrations.Migration):
             name='Mitigacion',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('ip', models.TextField(blank=True, null=True)),
                 ('detalle', models.TextField(blank=True, null=True)),
                 ('activo', models.BooleanField(default=True)),
                 ('fecha_mitigacion', models.DateTimeField(auto_now_add=True)),

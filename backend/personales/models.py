@@ -4,7 +4,7 @@ from roles.models import Rol
 class Personal(models.Model):
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
-    numero = models.DecimalField(max_digits=20, decimal_places=0)  # para números grandes
+    numero = models.DecimalField(max_digits=20, decimal_places=0)
     correo = models.EmailField(unique=True)
     usuario = models.CharField(max_length=50, unique=True)
     contrasena = models.CharField(max_length=255)

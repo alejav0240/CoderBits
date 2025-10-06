@@ -37,7 +37,7 @@ def migrate_mitigaciones():
     try:
         print("Iniciando migración de Mitigaciones...")
         cur.execute("""
-            SELECT id_mitigacion, id_ataque, detalle, ejecutado_por, activo, 
+            SELECT id_mitigacion, id_ataque, ip, detalle, ejecutado_por, activo, 
                    fecha_mitigacion, resultado
             FROM mitigaciones;
         """)
@@ -47,7 +47,7 @@ def migrate_mitigaciones():
         
         for row in cur.fetchall():
             try:
-                (id_mitigacion, id_ataque, detalle, ejecutado_por, activo, 
+                (id_mitigacion, id_ataque, ip, detalle, ejecutado_por, activo, 
                  fecha_mitigacion, resultado) = row
                 
                 # Buscar el ataque relacionado
@@ -70,6 +70,7 @@ def migrate_mitigaciones():
                 mitigacion, created = Mitigacion.objects.update_or_create(
                     id=id_mitigacion,
                     defaults={
+                        "ip": ip,
                         "ataque": ataque,
                         "detalle": detalle,
                         "ejecutado_por": personal,

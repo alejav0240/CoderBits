@@ -3,7 +3,7 @@ from .models import Mitigacion
 
 @admin.register(Mitigacion)
 class MitigacionAdmin(admin.ModelAdmin):
-    list_display = ('ataque', 'ejecutado_por', 'activo', 'fecha_mitigacion')
+    list_display = ('ataque', 'ip','ejecutado_por', 'activo', 'fecha_mitigacion')
     search_fields = ('detalle', 'ataque__tipo', 'ejecutado_por__nombre')
     list_filter = ('activo', 'resultado')
 

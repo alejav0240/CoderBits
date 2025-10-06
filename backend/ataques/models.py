@@ -1,6 +1,13 @@
 from django.db import models
 
 class Ataque(models.Model):
+    TIPOS_ATAQUE = [
+        ("Neptune", "Neptune"),
+        ("DDoS", "DDoS"),
+        ("Satan", "Satan"),
+        ("Otro", "Otro"),
+    ]
+    
     tipo = models.CharField(max_length=100)
     descripcion = models.TextField(null=True, blank=True)
     ip_origen = models.CharField(max_length=45, null=True, blank=True)
