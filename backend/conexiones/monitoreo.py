@@ -2,10 +2,11 @@ import threading
 import collections
 import time
 from scapy.all import sniff
-from scapy.layers.inet import IP, TCP, UDP, ICMP
+from scapy.layers.inet import IP, TCP, UDP
 from scapy.layers.inet6 import IPv6
 from scapy.layers.l2 import ARP
 from django.utils import timezone
+from django.db import close_old_connections
 from django.db import close_old_connections
 from .models import Conexion
 from ataques.models import Ataque
@@ -83,7 +84,7 @@ def get_field(packet, layer, field):
 
 
 def get_proto(packet):
-    for layer in [TCP, UDP, ICMP, ARP, IPv6, IP]:
+    for layer in [TCP, UDP, IPv6, IP, ARP]:
         if packet.haslayer(layer):
             return layer.__name__
     return packet.lastlayer().name
@@ -101,6 +102,7 @@ def packet_callback(packet):
     timestamp = timezone.now()
 
     if ip_origen in [None, "-"] or ip_destino in [None, "-"]:
+        return
         return
 
     try:
@@ -172,6 +174,8 @@ def start_sniffer():
             try:
                 sniff(prn=packet_callback, store=False, timeout=5)
             except Exception as e:
+                print("[monitoreo] Error en Sniffer:", e)
+                time.sleep(1)
                 print("[monitoreo] Error en Sniffer:", e)
                 time.sleep(1)
 

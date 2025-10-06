@@ -1,0 +1,67 @@
+# Archivos y directorios de Python
+__pycache__/
+*.pyc
+*.pyo
+*~
+.Python/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+venv/
+env/
+.env
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.cache
+.pytest_cache/
+
+# Archivos y directorios de Django
+*.log
+*.sqlite3
+media/
+
+# Archivos y directorios de Node (React y React Native)
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+.yarn/
+.pnp.js
+.pnp.cjs
+build/
+dist/
+coverage/
+
+# Archivos y directorios de Jupyter
+.ipynb_checkpoints/
+*.ipynb
+!notebooks/*.ipynb  # Excepcion: si quieres mantener los notebooks en una carpeta específica
+
+# Archivos y directorios de Docker
+.dockerignore
+!Dockerfile
+!docker-compose.yml
+.env.docker
+.docker/
+
+# Archivos y directorios del sistema operativo
+.DS_Store
+.vscode/
+.idea/
+.project
+.classpath
+.settings/
+.vscode/
+.history
+Thumbs.db
