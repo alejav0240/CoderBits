@@ -3,10 +3,12 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Ataque
 from .serializers import AtaqueSerializer
+from rest_framework.permissions import IsAuthenticated
 
 class AtaqueViewSet(viewsets.ModelViewSet):
     queryset = Ataque.objects.filter(activo=True)
     serializer_class = AtaqueSerializer
+    permission_classes = [IsAuthenticated]
 
     def perform_destroy(self, instance):
         instance.delete()

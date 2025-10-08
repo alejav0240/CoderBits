@@ -82,8 +82,8 @@ INSERT INTO roles (nombre_rol) VALUES
 
 INSERT INTO personales (nombre, apellido, numero, correo, usuario, contrasena, id_rol, activo)
 VALUES
-('Willy', 'Condori', 73265777, 'will@gmail.com', 'will', '12345678', 1, TRUE),
-('Alejandro', 'Chipana', 73265888, 'aleja@gmail.com', 'ale', '12345678', 2, TRUE);
+('Willy', 'Condori', 73265777, 'will@gmail.com', 'will', 'pbkdf2_sha256$1000000$AbTvUdVrl7vUiNTpnpsBkb$+MmyoNUBTHL0oocz0xyyXu0mD3rA76u54vs+6Q1ZlCw=', 1, TRUE),
+('Alejandro', 'Chipana', 73265888, 'aleja@gmail.com', 'ale', 'pbkdf2_sha256$1000000$Ew0LtuII6RDw5SAjIavs4N$cHly/D746voH0Z0Iv+mLFEmZjZe3FGgXn083NxYx4tY=', 2, TRUE);
 
 INSERT INTO conexiones (hora, ip_src, ip_dst, port_dst, etiqueta, protocolo)
 VALUES

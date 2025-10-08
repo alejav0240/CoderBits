@@ -8,6 +8,7 @@ from scapy.layers.l2 import ARP
 from django.utils import timezone
 from django.db import close_old_connections
 from django.db import close_old_connections
+from django.db import close_old_connections
 from .models import Conexion
 from ataques.models import Ataque
 from channels.layers import get_channel_layer
@@ -103,7 +104,6 @@ def packet_callback(packet):
 
     if ip_origen in [None, "-"] or ip_destino in [None, "-"]:
         return
-        return
 
     try:
         close_old_connections()
@@ -174,6 +174,8 @@ def start_sniffer():
             try:
                 sniff(prn=packet_callback, store=False, timeout=5)
             except Exception as e:
+                print("[monitoreo] Error en Sniffer:", e)
+                time.sleep(1)
                 print("[monitoreo] Error en Sniffer:", e)
                 time.sleep(1)
                 print("[monitoreo] Error en Sniffer:", e)

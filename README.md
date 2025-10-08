@@ -92,7 +92,7 @@ Si deseas cambiar la contraseña de un usuario desde la base de datos:
 python manage.py shell
 
 from django.contrib.auth.hashers import make_password
-from app.models import Personal  # Ajusta según tu app
+from personales.models import Personal
 
 user = Personal.objects.get(usuario="wass")
 user.contrasena = make_password("12345678")

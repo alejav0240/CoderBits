@@ -5,17 +5,22 @@ from .models import Mitigacion
 from .serializers import MitigacionSerializer
 import subprocess
 from django.utils import timezone
-from django.db.models import Q 
+from django.db.models import Q
+from rest_framework.permissions import IsAuthenticated
+
 class MitigacionViewSet(viewsets.ModelViewSet):
     queryset = Mitigacion.objects.all() 
     serializer_class = MitigacionSerializer
+    permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
         if self.action == 'list':
             return self.queryset.filter(activo=True)
+        
         return self.queryset
 
     def perform_destroy(self, instance):
+        """Elimina lógicamente (marca como inactiva)"""
         instance.delete()
 
     @action(detail=False, methods=['get'], url_path='inactivas')
@@ -60,7 +65,7 @@ class MitigacionViewSet(viewsets.ModelViewSet):
                     capture_output=True, 
                     text=True, 
                     timeout=5,
-                    check=True 
+                    check=True
                 )
                 
                 mitigacion.activo = True
@@ -85,9 +90,6 @@ class MitigacionViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'], url_path='desactivar')
     def desactivar(self, request, pk=None):
-        """
-        Desactiva una mitigación (activo=True) desbloqueando la IP con NETSH (Windows).
-        """
         try:
             mitigacion = self.get_queryset().get(pk=pk, activo=True)
             
@@ -98,7 +100,7 @@ class MitigacionViewSet(viewsets.ModelViewSet):
             try:
                 cmd = [
                     "netsh", "advfirewall", "firewall", "delete", "rule",
-                    f"name=Bloqueo_{ip}"
+                    f"name=Bloqueo_{ip}" 
                 ]
                 
                 result = subprocess.run(
@@ -106,8 +108,8 @@ class MitigacionViewSet(viewsets.ModelViewSet):
                     capture_output=True, 
                     text=True, 
                     timeout=5,
-                    check=True 
-                    )
+                    check=True
+                )
                 
                 mitigacion.activo = False
                 mitigacion.resultado = f"IP {ip} desbloqueada"
