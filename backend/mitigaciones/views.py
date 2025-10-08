@@ -23,14 +23,12 @@ class MitigacionViewSet(viewsets.ModelViewSet):
         """Elimina lógicamente (marca como inactiva)"""
         instance.delete()
 
-    # Listar solo inactivas
     @action(detail=False, methods=['get'], url_path='inactivas')
     def listar_inactivas(self, request):
         queryset = Mitigacion.objects.filter(activo=False)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    # Restaurar una mitigación
     @action(detail=True, methods=['post'], url_path='restaurar')
     def restaurar(self, request, pk=None):
         try:
@@ -121,7 +119,6 @@ class MitigacionViewSet(viewsets.ModelViewSet):
                 return Response(serializer.data, status=status.HTTP_200_OK)
                 
             except subprocess.CalledProcessError as e:
-                # Captura errores específicos de netsh (ej: regla no existe, acceso denegado)
                 error_msg = f'Error al ejecutar NETSH - Delete: {e.stderr}'
                 mitigacion.resultado = error_msg
                 mitigacion.save()
