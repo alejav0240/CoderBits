@@ -20,14 +20,17 @@ class MitigacionViewSet(viewsets.ModelViewSet):
         return self.queryset
 
     def perform_destroy(self, instance):
+        """Elimina lógicamente (marca como inactiva)"""
         instance.delete()
 
+    # Listar solo inactivas
     @action(detail=False, methods=['get'], url_path='inactivas')
     def listar_inactivas(self, request):
         queryset = Mitigacion.objects.filter(activo=False)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
+    # Restaurar una mitigación
     @action(detail=True, methods=['post'], url_path='restaurar')
     def restaurar(self, request, pk=None):
         try:
