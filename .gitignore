@@ -46,7 +46,7 @@ coverage/
 # Archivos y directorios de Jupyter
 .ipynb_checkpoints/
 *.ipynb
-!notebooks/*.ipynb  # Excepcion: si quieres mantener los notebooks en una carpeta específica
+!ML-Analisis/*.ipynb  # Excepcion: si quieres mantener los notebooks en una carpeta específica
 
 # Archivos y directorios de Docker
 .dockerignore
