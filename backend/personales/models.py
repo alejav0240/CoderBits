@@ -1,11 +1,13 @@
 from django.db import models
 from roles.models import Rol
+from rest_framework.response import Response
+from rest_framework import viewsets, status
 
 class Personal(models.Model):
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
     numero = models.DecimalField(max_digits=20, decimal_places=0)
-    correo = models.EmailField(unique=True)
+    correo = models.EmailField()
     usuario = models.CharField(max_length=50, unique=True)
     contrasena = models.CharField(max_length=255)
     rol = models.ForeignKey(Rol, on_delete=models.RESTRICT, related_name="usuarios")
@@ -18,3 +20,4 @@ class Personal(models.Model):
     def delete(self, *args, **kwargs):
         self.activo = False
         self.save()
+        return Response({"message": "El usuario ha sido eliminado correctamente."}, status=status.HTTP_200_OK)
