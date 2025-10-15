@@ -33,7 +33,6 @@ Instalar dependencias
 
 pip install -r requirements.txt
 
-
 Variables de entorno
 Crear un archivo .env en la raíz del proyecto:
 
@@ -63,7 +62,6 @@ http://127.0.0.1:8000/admin/
 python manage.py runserver
 🚀 Levantar servidor con webSocket
 daphne -p 8000 mi_api_django.asgi:application
-
 
 
 Visitar en el navegador:
@@ -119,9 +117,9 @@ Gestiona los registros de tráfico de red capturado.
 
 * GET /api/conexiones/<id>/ - Recupera los detalles de una conexión específica.
 
-* POST /api/monitoreo/activar_monitoreo/ - Inicia el monitoreo de tráfico.
+* POST /api/conexiones/activar_monitoreo/ - Inicia el monitoreo de tráfico.
 
-* POST /api/monitoreo/desactivar_monitoreo/ - desactiva el monitoreo de tráfico.
+* POST /api/conexiones/desactivar_monitoreo/ - desactiva el monitoreo de tráfico.
 
 2. Roles (roles) 🛡️
 Permite la gestión de roles de usuario para el control de acceso.
