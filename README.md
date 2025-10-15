@@ -44,10 +44,14 @@ DB_PORT=5432
 
 🗄️ Base de datos y migraciones
 Acción	Comando
-Crear nuevas migraciones	python manage.py makemigrations
-Aplicar migraciones	python manage.py migrate
-Aplicar todas las migraciones automáticamente	python migrate_all.py
-Ver base de datos	python manage.py dbshell
+Crear nuevas migraciones:	
+* python manage.py makemigrations
+Aplicar migraciones:
+* python manage.py migrate
+Aplicar todas las migraciones automáticamente:	
+* python migrate_all.py
+Ver base de datos	
+* python manage.py dbshell:
 👤 Usuario administrador
 
 Crear un superusuario para acceder al panel de Django Admin:
@@ -58,10 +62,10 @@ python manage.py createsuperuser
 Ingresa usuario, correo y contraseña. Luego abrir en el navegador:
 http://127.0.0.1:8000/admin/
 
-🚀 Levantar servidor de desarrollo
-python manage.py runserver
+🚀 Levantar servidor de desarrollo:
+* python manage.py runserver
 🚀 Levantar servidor con webSocket
-daphne -p 8000 mi_api_django.asgi:application
+* daphne -p 8000 mi_api_django.asgi:application
 
 
 Visitar en el navegador:
