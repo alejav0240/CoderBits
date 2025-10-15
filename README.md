@@ -4,10 +4,11 @@ Este proyecto es una API en Django que captura tráfico de red y lo guarda en la
 Incluye un panel de administración para activar/desactivar la captura y gestionar las conexiones registradas.
 
 📌 Requisitos
+Tener permisos de administrador para el bloqueo de IPs
 
 Python 3.13 o superior
 
-PostgreSQL (o cualquier base de datos compatible con Django)
+PostgreSQL 17 (o cualquier base de datos compatible con Django)
 
 Windows: Npcap
  (para captura de paquetes de red)
@@ -118,9 +119,9 @@ Gestiona los registros de tráfico de red capturado.
 
 * GET /api/conexiones/<id>/ - Recupera los detalles de una conexión específica.
 
-* GET /api/monitoreo/activar/ - Inicia el monitoreo de tráfico.
+* POST /api/monitoreo/activar_monitoreo/ - Inicia el monitoreo de tráfico.
 
-* GET /api/monitoreo/desactivar/ - Inicia el monitoreo de tráfico.
+* POST /api/monitoreo/desactivar_monitoreo/ - desactiva el monitoreo de tráfico.
 
 2. Roles (roles) 🛡️
 Permite la gestión de roles de usuario para el control de acceso.
@@ -148,6 +149,8 @@ Administra la información del personal o usuarios del sistema.
 
 * DELETE /api/personales/<id>/ - Elimina un usuario.
 
+* POST /api/personales/login_personal/
+
 4. Ataques (ataques) 🚨
 Gestiona la información o registros relacionados con ataques detectados.
 
@@ -171,6 +174,11 @@ Gestiona las estrategias o acciones de mitigación implementadas.
 6. WebSocket
 
 * ws://127.0.0.1:8000/ws/monitoreo/ 
+* ws://127.0.0.1:8000/ws/alertas/ 
+
+7. 
+GET /api/dashboard/stats/ - Estadisticas(conteo de ataques, mitigaciones, etc... el dia de hoy)
+GET /api/dashboard/export/json/  - Datos para el reporte
 
 Ejecución de Simulación de Ataque
 Para simular el ataque usando el script de Python, solo necesitas navegar al directorio y ejecutar el comando(script en ataques).
