@@ -149,7 +149,9 @@ Administra la información del personal o usuarios del sistema.
 
 * DELETE /api/personales/<id>/ - Elimina un usuario.
 
-* POST /api/personales/login_personal/
+* DELETE /api/personales/<id>/restaurar/ - restaura al usuario eliminado
+
+* POST /api/personales/login_personal/ - inicio de sesion
 
 4. Ataques (ataques) 🚨
 Gestiona la información o registros relacionados con ataques detectados.

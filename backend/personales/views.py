@@ -51,7 +51,16 @@ class PersonalViewSet(viewsets.ModelViewSet):
             return Response({"detail": "No encontrado o activo"}, status=status.HTTP_404_NOT_FOUND)
         serializer = self.get_serializer(personal)
         return Response(serializer.data)
-
+    
+    @action(detail=True, methods=['post'], url_path='eliminar')
+    def eliminar_usuario(self, request, pk=None):
+        try:
+            personal = Personal.objects.get(pk=pk, activo=True)
+            personal.activo = False
+            personal.save()
+            return Response({"message": "El usuario ha sido eliminado correctamente."}, status=status.HTTP_200_OK)
+        except Personal.DoesNotExist:
+            return Response({"message": "Usuario no encontrado o ya está inactivo."}, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
