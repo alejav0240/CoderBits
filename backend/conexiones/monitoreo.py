@@ -13,6 +13,7 @@ from .models import Conexion
 from ataques.models import Ataque
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+from ataques.utils import enviar_alerta_ws
 
 monitor_activo_event = threading.Event()  
 sniffer_iniciado = False
@@ -35,7 +36,6 @@ def trim_deque(dq, window_seconds):
     cutoff = time.time() - window_seconds
     while dq and dq[0] < cutoff:
         dq.popleft()
-
 
 def crear_evento_ataque(ip_origen, ip_destino, tipo, descripcion="Detectado por sniffer"):
     try:
