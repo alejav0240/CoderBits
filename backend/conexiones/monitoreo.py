@@ -12,9 +12,9 @@ from ataques.models import Ataque
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from ataques.utils import enviar_alerta_ws
+import socket
 
 # IP del dispositivo local - NO se registrarán ataques desde esta IP
-IP_DISPOSITIVO_LOCAL = "192.168.0.35"
 
 monitor_activo_event = threading.Event()  
 sniffer_iniciado = False
@@ -173,21 +173,20 @@ def packet_callback(packet):
 
     evaluar_y_emitir(ip_origen, ip_destino)
 
-
 def start_sniffer():
-    """Inicia la captura en un hilo separado solo una vez"""
     global sniffer_iniciado
     if sniffer_iniciado:
-        monitor_activo_event.set()  
+        monitor_activo_event.set()
         return
     sniffer_iniciado = True
+
+    monitor_activo_event.set()
 
     def run():
         print("[monitoreo] Captura de red iniciada en TODA la red")
         print(f"[monitoreo] IP local excluida de detección de ataques: {IP_DISPOSITIVO_LOCAL}")
         while True:
             try:
-                # Monitoreo de TODA la red sin filtros
                 sniff(prn=packet_callback, store=False, timeout=5)
             except Exception as e:
                 print("[monitoreo] Error en Sniffer:", e)
@@ -196,8 +195,20 @@ def start_sniffer():
     thread = threading.Thread(target=run, daemon=True)
     thread.start()
 
-
 def stop_sniffer():
     """Desactiva temporalmente el monitoreo sin matar el hilo"""
     monitor_activo_event.clear()
     print("[monitoreo] Monitoreo pausado")
+
+def obtener_ip_local():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+    except Exception:
+        ip = "127.0.0.1"
+    finally:
+        s.close()
+    return ip
+
+IP_DISPOSITIVO_LOCAL = obtener_ip_local()
