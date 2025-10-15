@@ -7,13 +7,14 @@ from scapy.layers.inet6 import IPv6
 from scapy.layers.l2 import ARP
 from django.utils import timezone
 from django.db import close_old_connections
-from django.db import close_old_connections
-from django.db import close_old_connections
 from .models import Conexion
 from ataques.models import Ataque
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from ataques.utils import enviar_alerta_ws
+
+# IP del dispositivo local - NO se registrarán ataques desde esta IP
+IP_DISPOSITIVO_LOCAL = "192.168.0.35"
 
 monitor_activo_event = threading.Event()  
 sniffer_iniciado = False
@@ -38,9 +39,13 @@ def trim_deque(dq, window_seconds):
         dq.popleft()
 
 def crear_evento_ataque(ip_origen, ip_destino, tipo, descripcion="Detectado por sniffer"):
+    if ip_origen == IP_DISPOSITIVO_LOCAL:
+        print(f"[monitoreo] Ataque desde IP local ignorado: {tipo} {ip_origen} -> {ip_destino}")
+        return
+    
     try:
         close_old_connections()
-        Ataque.objects.create(
+        ataque = Ataque.objects.create(
             ip_origen=ip_origen,
             ip_destino=ip_destino,
             tipo=tipo,
@@ -48,10 +53,16 @@ def crear_evento_ataque(ip_origen, ip_destino, tipo, descripcion="Detectado por 
             puerto=None,
         )
         print(f"[monitoreo] Ataque registrado: {tipo} {ip_origen} -> {ip_destino}")
+
+        enviar_alerta_ws(ataque)
+
     except Exception as e:
         print(f"[monitoreo] Error guardando Ataque: {e}")
 
 def evaluar_y_emitir(ip_origen, ip_destino):
+    if ip_origen == IP_DISPOSITIVO_LOCAL:
+        return
+    
     now = time.time()
 
     dq_syn = syn_records.get(ip_origen)
@@ -111,7 +122,7 @@ def packet_callback(packet):
             hora=timestamp,
             ip_src=ip_origen,
             ip_dst=ip_destino,
-            port_dst=(None if puerto_destino in [None, "-", ""] else puerto_destino), # <--- Aquí se genera el None
+            port_dst=(None if puerto_destino in [None, "-", ""] else puerto_destino),
             etiqueta=etiqueta,
             protocolo=protocolo
         )
@@ -135,6 +146,9 @@ def packet_callback(packet):
         )
     except Exception as e:
         print("[monitoreo] Error guardando Conexion:", e)
+
+    if ip_origen == IP_DISPOSITIVO_LOCAL:
+        return
 
     now = time.time()
 
@@ -169,15 +183,13 @@ def start_sniffer():
     sniffer_iniciado = True
 
     def run():
-        print("[monitoreo] Captura de red iniciada")
+        print("[monitoreo] Captura de red iniciada en TODA la red")
+        print(f"[monitoreo] IP local excluida de detección de ataques: {IP_DISPOSITIVO_LOCAL}")
         while True:
             try:
+                # Monitoreo de TODA la red sin filtros
                 sniff(prn=packet_callback, store=False, timeout=5)
             except Exception as e:
-                print("[monitoreo] Error en Sniffer:", e)
-                time.sleep(1)
-                print("[monitoreo] Error en Sniffer:", e)
-                time.sleep(1)
                 print("[monitoreo] Error en Sniffer:", e)
                 time.sleep(1)
 

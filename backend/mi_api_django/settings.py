@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'conexiones',
     'ataques',
     'mitigaciones',
+    'dashboard',
     'channels',
 ]
 
