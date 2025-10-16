@@ -28,13 +28,22 @@ class ExportJsonView(APIView):
     def get(self, request):
         try:
             hoy = timezone.now().date()
-            hace_30_dias = hoy - timedelta(days=30)
+
+            # Filtra solo los ataques detectados hoy
+            ataques_hoy = Ataque.objects.filter(
+                fecha_detectado__date=hoy
+            ).values()
+
+            # Filtra solo las mitigaciones hechas hoy
+            mitigaciones_hoy = Mitigacion.objects.filter(
+                fecha_mitigacion__date=hoy
+            ).values()
 
             data = {
-                "ataques": list(Ataque.objects.all().values()),
-                "conexiones": list(Conexion.objects.filter(hora__date__gte=hace_30_dias).values()),
-                "mitigaciones": list(Mitigacion.objects.all().values()),
+                "ataques": list(ataques_hoy),
+                "mitigaciones": list(mitigaciones_hoy),
             }
+
             return Response(data)
         except Exception as e:
             return Response({"error": str(e)})
