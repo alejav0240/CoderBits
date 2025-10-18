@@ -1,65 +1,106 @@
 import { useState, useEffect } from 'react';
-import { trafficService } from '../api/trafficService';
+import trafficService from '../../../services/trafficService';
 
-export const useTraffic = () => {
-    const [trafficData, setTrafficData] = useState([]);
-    const [topTraffic, setTopTraffic] = useState([]);
-    const [networkStatus, setNetworkStatus] = useState({});
-    const [isConnected, setIsConnected] = useState(false);
+export const useTraffic = (initialParams = {}) => {
+    const [connections, setConnections] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [monitoringStatus, setMonitoringStatus] = useState(false);
+    const [pagination, setPagination] = useState({
+        page: 1,
+        limit: 10,
+        totalItems: 0,
+        totalPages: 0
+    });
+    const [params, setParams] = useState(initialParams);
 
     useEffect(() => {
-        const initializeTrafficData = async () => {
-            setLoading(true);
+        const fetchConnections = async () => {
             try {
-                // Cargar datos iniciales
-                const [topData, statusData] = await Promise.all([
-                    trafficService.getTopTraffic(5),
-                    trafficService.getNetworkStatus()
-                ]);
+                setLoading(true);
+                const queryParams = {
+                    page: pagination.page,
+                    limit: pagination.limit,
+                    ...params
+                };
                 
-                setTopTraffic(topData);
-                setNetworkStatus(statusData);
+                const response = await trafficService.getConnections(queryParams);
                 
-                // Configurar WebSocket mock
-                const socket = trafficService.connectWebSocket((newData) => {
-                    setTrafficData(prev => {
-                        const updated = [...prev, { 
-                            ...newData, 
-                            timestamp: new Date().toLocaleTimeString(),
-                            id: Date.now() 
-                        }];
-                        return updated.slice(-50); // Mantener últimos 50 puntos
-                    });
+                setConnections(response.results || []);
+                setPagination({
+                    ...pagination,
+                    totalItems: response.count || 0,
+                    totalPages: Math.ceil((response.count || 0) / pagination.limit)
                 });
-
-                // Simular conexión exitosa
-                setTimeout(() => {
-                    setIsConnected(true);
-                    setLoading(false);
-                }, 1000);
-
-            } catch (error) {
-                console.error('Error initializing traffic data:', error);
+            } catch (err) {
+                console.error('Error al cargar conexiones:', err);
+                setError('No se pudieron cargar las conexiones');
+            } finally {
                 setLoading(false);
             }
         };
 
-        initializeTrafficData();
+        fetchConnections();
+    }, [pagination.page, pagination.limit, params]);
 
-        // Cleanup
-        return () => {
-            trafficService.disconnectWebSocket();
+    useEffect(() => {
+        const checkMonitoringStatus = async () => {
+            try {
+                const status = await trafficService.getMonitoringStatus();
+                setMonitoringStatus(status.active || false);
+            } catch (err) {
+                console.error('Error al verificar estado de monitoreo:', err);
+            }
         };
+
+        checkMonitoringStatus();
     }, []);
 
+    const changePage = (page) => {
+        setPagination({ ...pagination, page });
+    };
+
+    const changeLimit = (limit) => {
+        setPagination({ ...pagination, limit, page: 1 });
+    };
+
+    const updateParams = (newParams) => {
+        setParams({ ...params, ...newParams });
+        setPagination({ ...pagination, page: 1 });
+    };
+
+    const startMonitoring = async () => {
+        try {
+            await trafficService.startMonitoring();
+            setMonitoringStatus(true);
+            return true;
+        } catch (err) {
+            console.error('Error al iniciar monitoreo:', err);
+            return false;
+        }
+    };
+
+    const stopMonitoring = async () => {
+        try {
+            await trafficService.stopMonitoring();
+            setMonitoringStatus(false);
+            return true;
+        } catch (err) {
+            console.error('Error al detener monitoreo:', err);
+            return false;
+        }
+    };
+
     return {
-        trafficData,
-        topTraffic,
-        networkStatus,
-        isConnected,
-        loading
+        connections,
+        loading,
+        error,
+        monitoringStatus,
+        pagination,
+        changePage,
+        changeLimit,
+        updateParams,
+        startMonitoring,
+        stopMonitoring
     };
 };
-
-export default useTraffic;
