@@ -33,7 +33,6 @@ Instalar dependencias
 
 pip install -r requirements.txt
 
-
 Variables de entorno
 Crear un archivo .env en la raíz del proyecto:
 
@@ -51,10 +50,14 @@ Crear una base de datos en PostgreSQL y en el query hacer correr
 postgresql_IDS.sql los datos iniciales que se tienen en la base de datos. 
 
 Acción	Comando
-Crear nuevas migraciones	python manage.py makemigrations
-Aplicar migraciones	python manage.py migrate
-Aplicar todas las migraciones automáticamente	python migrate_all.py
-Ver base de datos	python manage.py dbshell
+Crear nuevas migraciones:	
+* python manage.py makemigrations
+Aplicar migraciones:
+* python manage.py migrate
+Aplicar todas las migraciones automáticamente:	
+* python migrate_all.py
+Ver base de datos	
+* python manage.py dbshell:
 👤 Usuario administrador
 
 Crear un superusuario para acceder al panel de Django Admin:
@@ -133,9 +136,9 @@ Gestiona los registros de tráfico de red capturado.
 
 * GET /api/conexiones/<id>/ - Recupera los detalles de una conexión específica.
 
-* POST /api/monitoreo/activar_monitoreo/ - Inicia el monitoreo de tráfico.
+* POST /api/conexiones/activar_monitoreo/ - Inicia el monitoreo de tráfico.
 
-* POST /api/monitoreo/desactivar_monitoreo/ - desactiva el monitoreo de tráfico.
+* POST /api/conexiones/desactivar_monitoreo/ - desactiva el monitoreo de tráfico.
 
 2. Roles (roles) 🛡️
 Permite la gestión de roles de usuario para el control de acceso.
