@@ -43,7 +43,13 @@ DB_PASSWORD=contraseña
 DB_HOST=localhost
 DB_PORT=5432
 
+Como ejemplo se tiene el archivo .env.example mantener SECRET_KEY para no tener problemas
+
 🗄️ Base de datos y migraciones
+
+Crear una base de datos en PostgreSQL y en el query hacer correr
+postgresql_IDS.sql los datos iniciales que se tienen en la base de datos. 
+
 Acción	Comando
 Crear nuevas migraciones	python manage.py makemigrations
 Aplicar migraciones	python manage.py migrate
@@ -55,19 +61,27 @@ Crear un superusuario para acceder al panel de Django Admin:
 
 python manage.py createsuperuser
 
+<<<<<<< Updated upstream
 
 Ingresa usuario, correo y contraseña. Luego abrir en el navegador:
 http://127.0.0.1:8000/admin/
 
 🚀 Levantar servidor de desarrollo
 python manage.py runserver
+=======
+🚀 Levantar servidor de desarrollo:
+* python manage.py runserver
+>>>>>>> Stashed changes
 🚀 Levantar servidor con webSocket
 daphne -p 8000 mi_api_django.asgi:application
 
 
-
 Visitar en el navegador:
 http://127.0.0.1:8000/
+
+Ingresa usuario, correo y contraseña. Luego abrir en el navegador:
+http://127.0.0.1:8000/admin/
+
 
 🖧 Captura de red (Sniffer)
 
@@ -108,7 +122,7 @@ pip freeze > requirements.txt
 Esto facilita instalar todo en otro equipo con:
 
 pip install -r requirements.txt
-git c
+
 💻 Endpoints de la API
 La API de CoderBits expone las siguientes rutas para interactuar con los datos de captura de red y gestión del sistema. Todas las rutas siguen una convención RESTful y están precedidas por la base /api/.
 
