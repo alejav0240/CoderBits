@@ -1,14 +1,14 @@
 // Configuración de la aplicación
 export const CONFIG = {
     // Cambiar a false cuando tengas backend real
-    USE_MOCK_DATA: true,
+    USE_MOCK_DATA: false,
     
     // URL del backend (cuando USE_MOCK_DATA = false)
-    API_URL: 'http://localhost:3001/api',
+    API_URL: 'http://localhost:8000/api',
     
     // Configuración de desarrollo
     DEVELOPMENT: {
-        simulateNetworkDelay: true,
+        simulateNetworkDelay: false,
         delayMs: 500
     },
     
