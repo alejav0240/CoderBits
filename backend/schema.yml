@@ -1,0 +1,1540 @@
+openapi: 3.0.3
+info:
+  title: Título de tu API de Django
+  version: 1.0.0
+  description: Documentación de tu Backend con DRF y Spectacular
+paths:
+  /api/ataques/:
+    get:
+      operationId: api_ataques_list
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ataque'
+          description: ''
+    post:
+      operationId: api_ataques_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Ataque'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Ataque'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Ataque'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ataque'
+          description: ''
+  /api/ataques/{id}/:
+    get:
+      operationId: api_ataques_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this ataque.
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ataque'
+          description: ''
+    put:
+      operationId: api_ataques_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this ataque.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Ataque'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Ataque'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Ataque'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ataque'
+          description: ''
+    patch:
+      operationId: api_ataques_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this ataque.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAtaque'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAtaque'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAtaque'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ataque'
+          description: ''
+    delete:
+      operationId: api_ataques_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this ataque.
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/ataques/{id}/restaurar/:
+    post:
+      operationId: api_ataques_restaurar_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this ataque.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Ataque'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Ataque'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Ataque'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ataque'
+          description: ''
+  /api/ataques/inactivos/:
+    get:
+      operationId: api_ataques_inactivos_retrieve
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ataque'
+          description: ''
+  /api/conexiones/:
+    get:
+      operationId: api_conexiones_list
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Conexion'
+          description: ''
+    post:
+      operationId: api_conexiones_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Conexion'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Conexion'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Conexion'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Conexion'
+          description: ''
+  /api/conexiones/{id}/:
+    get:
+      operationId: api_conexiones_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this conexion.
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Conexion'
+          description: ''
+    put:
+      operationId: api_conexiones_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this conexion.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Conexion'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Conexion'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Conexion'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Conexion'
+          description: ''
+    patch:
+      operationId: api_conexiones_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this conexion.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedConexion'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedConexion'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedConexion'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Conexion'
+          description: ''
+    delete:
+      operationId: api_conexiones_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this conexion.
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/conexiones/activar_monitoreo/:
+    post:
+      operationId: api_conexiones_activar_monitoreo_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Conexion'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Conexion'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Conexion'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Conexion'
+          description: ''
+  /api/conexiones/desactivar_monitoreo/:
+    post:
+      operationId: api_conexiones_desactivar_monitoreo_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Conexion'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Conexion'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Conexion'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Conexion'
+          description: ''
+  /api/dashboard/export/json/:
+    get:
+      operationId: api_dashboard_export_json_retrieve
+      description: Exporta los ataques y mitigaciones detectados en la fecha actual
+        en formato JSON.
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportJson'
+          description: ''
+  /api/dashboard/stats/:
+    get:
+      operationId: api_dashboard_stats_retrieve
+      description: 'Obtiene estadísticas generales del sistema: ataques activos, ataques
+        del día, conexiones del día, mitigaciones exitosas, etc.'
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardStats'
+          description: ''
+  /api/mitigaciones/:
+    get:
+      operationId: api_mitigaciones_list
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Mitigacion'
+          description: ''
+    post:
+      operationId: api_mitigaciones_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Mitigacion'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Mitigacion'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Mitigacion'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mitigacion'
+          description: ''
+  /api/mitigaciones/{id}/:
+    get:
+      operationId: api_mitigaciones_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this mitigacion.
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mitigacion'
+          description: ''
+    put:
+      operationId: api_mitigaciones_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this mitigacion.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Mitigacion'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Mitigacion'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Mitigacion'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mitigacion'
+          description: ''
+    patch:
+      operationId: api_mitigaciones_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this mitigacion.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedMitigacion'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedMitigacion'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedMitigacion'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mitigacion'
+          description: ''
+    delete:
+      operationId: api_mitigaciones_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this mitigacion.
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/mitigaciones/{id}/activar/:
+    post:
+      operationId: api_mitigaciones_activar_create
+      description: Activa una mitigación pendiente (activo=False) bloqueando la IP
+        con NETSH (Windows).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this mitigacion.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Mitigacion'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Mitigacion'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Mitigacion'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mitigacion'
+          description: ''
+  /api/mitigaciones/{id}/desactivar/:
+    post:
+      operationId: api_mitigaciones_desactivar_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this mitigacion.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Mitigacion'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Mitigacion'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Mitigacion'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mitigacion'
+          description: ''
+  /api/mitigaciones/{id}/restaurar/:
+    post:
+      operationId: api_mitigaciones_restaurar_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this mitigacion.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Mitigacion'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Mitigacion'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Mitigacion'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mitigacion'
+          description: ''
+  /api/mitigaciones/inactivas/:
+    get:
+      operationId: api_mitigaciones_inactivas_retrieve
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mitigacion'
+          description: ''
+  /api/personales/:
+    get:
+      operationId: api_personales_list
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Personal'
+          description: ''
+    post:
+      operationId: api_personales_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Personal'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Personal'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Personal'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Personal'
+          description: ''
+  /api/personales/{id}/:
+    get:
+      operationId: api_personales_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this personal.
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Personal'
+          description: ''
+    put:
+      operationId: api_personales_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this personal.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Personal'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Personal'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Personal'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Personal'
+          description: ''
+    patch:
+      operationId: api_personales_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this personal.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPersonal'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPersonal'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPersonal'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Personal'
+          description: ''
+    delete:
+      operationId: api_personales_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this personal.
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/personales/{id}/activo/:
+    get:
+      operationId: api_personales_activo_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this personal.
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Personal'
+          description: ''
+  /api/personales/{id}/eliminar/:
+    post:
+      operationId: api_personales_eliminar_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this personal.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Personal'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Personal'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Personal'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Personal'
+          description: ''
+  /api/personales/{id}/inactivo/:
+    get:
+      operationId: api_personales_inactivo_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this personal.
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Personal'
+          description: ''
+  /api/personales/{id}/restaurar/:
+    post:
+      operationId: api_personales_restaurar_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this personal.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Personal'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Personal'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Personal'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Personal'
+          description: ''
+  /api/personales/activos/:
+    get:
+      operationId: api_personales_activos_retrieve
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Personal'
+          description: ''
+  /api/personales/inactivos/:
+    get:
+      operationId: api_personales_inactivos_retrieve
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Personal'
+          description: ''
+  /api/personales/login_personal/:
+    post:
+      operationId: api_personales_login_personal_create
+      description: Permite el inicio de sesión del personal. Devuelve los tokens de
+        autenticación JWT y la información básica del usuario.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+          description: ''
+  /api/roles/:
+    get:
+      operationId: api_roles_list
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Rol'
+          description: ''
+    post:
+      operationId: api_roles_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Rol'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Rol'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Rol'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rol'
+          description: ''
+  /api/roles/{id}/:
+    get:
+      operationId: api_roles_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this rol.
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rol'
+          description: ''
+    put:
+      operationId: api_roles_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this rol.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Rol'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Rol'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Rol'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rol'
+          description: ''
+    patch:
+      operationId: api_roles_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this rol.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedRol'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedRol'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedRol'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rol'
+          description: ''
+    delete:
+      operationId: api_roles_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this rol.
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/token/refresh/:
+    post:
+      operationId: api_token_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+components:
+  schemas:
+    Ataque:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        tipo:
+          type: string
+          maxLength: 100
+        descripcion:
+          type: string
+          nullable: true
+        ip_origen:
+          type: string
+          nullable: true
+          maxLength: 45
+        ip_destino:
+          type: string
+          nullable: true
+          maxLength: 45
+        puerto:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          nullable: true
+        fecha_detectado:
+          type: string
+          format: date-time
+          readOnly: true
+        conteo_conexiones:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          nullable: true
+        activo:
+          type: boolean
+      required:
+      - fecha_detectado
+      - id
+      - tipo
+    Conexion:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        hora:
+          type: string
+          format: date-time
+        ip_src:
+          type: string
+          maxLength: 45
+        ip_dst:
+          type: string
+          maxLength: 45
+        port_dst:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          nullable: true
+        etiqueta:
+          type: string
+          maxLength: 50
+        protocolo:
+          type: string
+          nullable: true
+          maxLength: 10
+      required:
+      - etiqueta
+      - hora
+      - id
+      - ip_dst
+      - ip_src
+    DashboardStats:
+      type: object
+      properties:
+        ataques_activos:
+          type: integer
+        ataques_hoy:
+          type: integer
+        conexiones_hoy:
+          type: integer
+        mitigaciones_exitosas:
+          type: integer
+        ataques_ultimos_30_dias:
+          type: integer
+      required:
+      - ataques_activos
+      - ataques_hoy
+      - ataques_ultimos_30_dias
+      - conexiones_hoy
+      - mitigaciones_exitosas
+    ExportJson:
+      type: object
+      properties:
+        ataques:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+        mitigaciones:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+      required:
+      - ataques
+      - mitigaciones
+    LoginRequest:
+      type: object
+      properties:
+        usuario:
+          type: string
+        contrasena:
+          type: string
+      required:
+      - contrasena
+      - usuario
+    LoginResponse:
+      type: object
+      properties:
+        refresh:
+          type: string
+        access:
+          type: string
+        usuario:
+          type: string
+        rol:
+          type: string
+          nullable: true
+        message:
+          type: string
+      required:
+      - access
+      - message
+      - refresh
+      - rol
+      - usuario
+    Mitigacion:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        ataque:
+          type: integer
+        ip:
+          type: string
+          nullable: true
+        detalle:
+          type: string
+          nullable: true
+        ejecutado_por:
+          type: integer
+          nullable: true
+        activo:
+          type: boolean
+        fecha_mitigacion:
+          type: string
+          format: date-time
+          readOnly: true
+        resultado:
+          type: string
+          nullable: true
+          maxLength: 100
+      required:
+      - ataque
+      - fecha_mitigacion
+      - id
+    PatchedAtaque:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        tipo:
+          type: string
+          maxLength: 100
+        descripcion:
+          type: string
+          nullable: true
+        ip_origen:
+          type: string
+          nullable: true
+          maxLength: 45
+        ip_destino:
+          type: string
+          nullable: true
+          maxLength: 45
+        puerto:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          nullable: true
+        fecha_detectado:
+          type: string
+          format: date-time
+          readOnly: true
+        conteo_conexiones:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          nullable: true
+        activo:
+          type: boolean
+    PatchedConexion:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        hora:
+          type: string
+          format: date-time
+        ip_src:
+          type: string
+          maxLength: 45
+        ip_dst:
+          type: string
+          maxLength: 45
+        port_dst:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          nullable: true
+        etiqueta:
+          type: string
+          maxLength: 50
+        protocolo:
+          type: string
+          nullable: true
+          maxLength: 10
+    PatchedMitigacion:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        ataque:
+          type: integer
+        ip:
+          type: string
+          nullable: true
+        detalle:
+          type: string
+          nullable: true
+        ejecutado_por:
+          type: integer
+          nullable: true
+        activo:
+          type: boolean
+        fecha_mitigacion:
+          type: string
+          format: date-time
+          readOnly: true
+        resultado:
+          type: string
+          nullable: true
+          maxLength: 100
+    PatchedPersonal:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        nombre:
+          type: string
+          maxLength: 100
+        apellido:
+          type: string
+          maxLength: 100
+        numero:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,20}(?:\.\d{0,0})?$
+        correo:
+          type: string
+          format: email
+          maxLength: 254
+        usuario:
+          type: string
+          maxLength: 50
+        contrasena:
+          type: string
+          writeOnly: true
+          maxLength: 20
+          minLength: 8
+        rol:
+          type: integer
+        activo:
+          type: boolean
+        fecha_registro:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedRol:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        nombre_rol:
+          type: string
+          maxLength: 20
+          minLength: 3
+    Personal:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        nombre:
+          type: string
+          maxLength: 100
+        apellido:
+          type: string
+          maxLength: 100
+        numero:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,20}(?:\.\d{0,0})?$
+        correo:
+          type: string
+          format: email
+          maxLength: 254
+        usuario:
+          type: string
+          maxLength: 50
+        contrasena:
+          type: string
+          writeOnly: true
+          maxLength: 20
+          minLength: 8
+        rol:
+          type: integer
+        activo:
+          type: boolean
+        fecha_registro:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - apellido
+      - contrasena
+      - correo
+      - fecha_registro
+      - id
+      - nombre
+      - numero
+      - rol
+      - usuario
+    Rol:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        nombre_rol:
+          type: string
+          maxLength: 20
+          minLength: 3
+      required:
+      - id
+      - nombre_rol
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          writeOnly: true
+      required:
+      - access
+      - refresh
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

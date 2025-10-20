@@ -1,4 +1,4 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, serializers
 from rest_framework.response import Response
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -6,6 +6,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import check_password
 from .models import Personal
 from .serializers import PersonalSerializer
+from drf_spectacular.utils import extend_schema
 
 class PersonalViewSet(viewsets.ModelViewSet):
     queryset = Personal.objects.all()
@@ -62,6 +63,26 @@ class PersonalViewSet(viewsets.ModelViewSet):
         except Personal.DoesNotExist:
             return Response({"message": "Usuario no encontrado o ya está inactivo."}, status=status.HTTP_404_NOT_FOUND)
 
+class LoginRequestSerializer(serializers.Serializer):
+    usuario = serializers.CharField()
+    contrasena = serializers.CharField()
+
+class LoginResponseSerializer(serializers.Serializer):
+    refresh = serializers.CharField()
+    access = serializers.CharField()
+    usuario = serializers.CharField()
+    rol = serializers.CharField(allow_null=True)
+    message = serializers.CharField()
+
+# ==============================
+# VISTA LOGIN
+# ==============================
+
+@extend_schema(
+    request=LoginRequestSerializer,
+    responses={200: LoginResponseSerializer},
+    description="Permite el inicio de sesión del personal. Devuelve los tokens de autenticación JWT y la información básica del usuario."
+)
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_personal(request):
@@ -82,7 +103,7 @@ def login_personal(request):
     refresh = RefreshToken()
     refresh['user_id'] = personal.id
     refresh['usuario'] = personal.usuario
-    refresh['rol'] = personal.rol.nombre_rol if personal.rol else None 
+    refresh['rol'] = personal.rol.nombre_rol if personal.rol else None
 
     return Response({
         'refresh': str(refresh),
