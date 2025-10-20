@@ -1,45 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
-import { attacksService } from '../api/attacksService';
+import { useAttacks } from '../../../services/query/useAttacks';
 
 const AttacksCharts = () => {
-    const [stats, setStats] = useState(null);
     const [timeRange, setTimeRange] = useState('24h');
-    const [loading, setLoading] = useState(false);
-
-    const fetchStats = async (range = timeRange) => {
-        setLoading(true);
-        try {
-            const data = await attacksService.getAttackStats(range);
-            setStats(data);
-        } catch (error) {
-            console.error('Error fetching stats:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchStats();
-    }, []);
+    const { data: stats, isLoading, isError } = useAttacks(timeRange);
 
     const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
-    if (loading) return <div>Cargando estadísticas...</div>;
+    if (isLoading) return <div>Cargando estadísticas...</div>;
+    if (isError) return <div>Error cargando estadísticas</div>;
     if (!stats) return <div>No hay datos disponibles</div>;
 
     return (
         <div className="row">
             <div className="col-md-6 mb-4">
                 <div className="card">
-                    <div className="card-header">
+                    <div className="card-header d-flex justify-content-between align-items-center">
                         <h5>Ataques por Hora</h5>
-                        <select 
-                            value={timeRange} 
-                            onChange={(e) => {
-                                setTimeRange(e.target.value);
-                                fetchStats(e.target.value);
-                            }}
+                        <select
+                            value={timeRange}
+                            onChange={(e) => setTimeRange(e.target.value)}
                         >
                             <option value="1h">Última hora</option>
                             <option value="24h">Últimas 24h</option>

@@ -1,77 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
-//import { trafficService } from '../api/trafficService';
+import { conectarTraffic, escucharMensajes, cerrarTraffic } from '../../../services/api/trafficService';
 
 const TrafficCharts = () => {
     const [trafficData, setTrafficData] = useState([]);
     const [timeRange, setTimeRange] = useState('1h');
-    const [loading, setLoading] = useState(false);
-
-    const fetchTrafficData = async (range = timeRange) => {
-        setLoading(true);
-        try {
-            // Datos de ejemplo para demostración
-            const mockData = generateMockTrafficData(range);
-            setTrafficData(mockData);
-            
-            // Para producción, descomentar:
-            // const data = await trafficService.getTrafficHistory(range);
-            // setTrafficData(data);
-        } catch (error) {
-            console.error('Error fetching traffic data:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const generateMockTrafficData = (range) => {
-        const data = [];
-        const now = new Date();
-        let points = 60; // 1 hora por defecto
-        
-        if (range === '24h') points = 24;
-        if (range === '7d') points = 7;
-        
-        for (let i = points; i >= 0; i--) {
-            const timestamp = new Date(now.getTime() - i * (range === '7d' ? 24 * 3600000 : range === '24h' ? 3600000 : 60000));
-            data.push({
-                timestamp: range === '7d' ? timestamp.toLocaleDateString() : timestamp.toLocaleTimeString(),
-                bytes: Math.floor(Math.random() * 1000000) + 500000,
-                packets: Math.floor(Math.random() * 10000) + 1000,
-                connections: Math.floor(Math.random() * 500) + 50
-            });
-        }
-        return data;
-    };
 
     useEffect(() => {
-        fetchTrafficData();
-    }, []);
+        conectarTraffic();
 
-    if (loading) {
-        return (
-            <div className="d-flex justify-content-center align-items-center" style={{ height: '400px' }}>
-                <div className="spinner-border text-primary" role="status">
-                    <span className="visually-hidden">Cargando datos de tráfico...</span>
-                </div>
-            </div>
-        );
-    }
+        // Recibe datos del socket
+        escucharMensajes((data) => {
+            setTrafficData((prev) => {
+                const updated = [...prev, data];
+
+                // limitador según timeRange
+                if (timeRange === '1h' && updated.length > 60) updated.shift();
+                if (timeRange === '24h' && updated.length > 24) updated.shift();
+                if (timeRange === '7d' && updated.length > 7) updated.shift();
+
+                return updated;
+            });
+        });
+
+        return () => {
+            cerrarTraffic();
+        };
+    }, [timeRange]);
 
     return (
         <div className="row">
             <div className="col-12 mb-4">
                 <div className="card">
                     <div className="card-header d-flex justify-content-between align-items-center">
-                        <h5 className="mb-0">Historial de Tráfico</h5>
-                        <select 
-                            className="form-select form-select-sm" 
+                        <h5 className="mb-0">Historial de Tráfico (Tiempo Real)</h5>
+                        <select
+                            className="form-select form-select-sm"
                             style={{ width: 'auto' }}
                             value={timeRange}
-                            onChange={(e) => {
-                                setTimeRange(e.target.value);
-                                fetchTrafficData(e.target.value);
-                            }}
+                            onChange={(e) => setTimeRange(e.target.value)}
                         >
                             <option value="1h">Última hora</option>
                             <option value="24h">Últimas 24h</option>
@@ -84,30 +51,10 @@ const TrafficCharts = () => {
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="timestamp" />
                                 <YAxis />
-                                <Tooltip 
-                                    formatter={(value, name) => {
-                                        if (name === 'bytes') return [`${(value / 1024 / 1024).toFixed(2)} MB`, 'Bytes'];
-                                        if (name === 'packets') return [value.toLocaleString(), 'Paquetes'];
-                                        return [value, name];
-                                    }}
-                                />
+                                <Tooltip />
                                 <Legend />
-                                <Line 
-                                    type="monotone" 
-                                    dataKey="bytes" 
-                                    stroke="#8884d8" 
-                                    strokeWidth={2} 
-                                    dot={false}
-                                    name="Bytes"
-                                />
-                                <Line 
-                                    type="monotone" 
-                                    dataKey="packets" 
-                                    stroke="#82ca9d" 
-                                    strokeWidth={2} 
-                                    dot={false}
-                                    name="Paquetes"
-                                />
+                                <Line type="monotone" dataKey="bytes" stroke="#8884d8" strokeWidth={2} dot={false} name="Bytes" />
+                                <Line type="monotone" dataKey="packets" stroke="#82ca9d" strokeWidth={2} dot={false} name="Paquetes" />
                             </LineChart>
                         </ResponsiveContainer>
                     </div>
@@ -116,9 +63,7 @@ const TrafficCharts = () => {
 
             <div className="col-md-6 mb-4">
                 <div className="card">
-                    <div className="card-header">
-                        <h5 className="mb-0">Conexiones Activas</h5>
-                    </div>
+                    <div className="card-header"><h5 className="mb-0">Conexiones Activas</h5></div>
                     <div className="card-body">
                         <ResponsiveContainer width="100%" height={250}>
                             <BarChart data={trafficData.slice(-10)}>
@@ -135,9 +80,7 @@ const TrafficCharts = () => {
 
             <div className="col-md-6 mb-4">
                 <div className="card">
-                    <div className="card-header">
-                        <h5 className="mb-0">Resumen de Tráfico</h5>
-                    </div>
+                    <div className="card-header"><h5 className="mb-0">Resumen de Tráfico</h5></div>
                     <div className="card-body">
                         {trafficData.length > 0 && (
                             <div className="row text-center">

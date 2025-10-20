@@ -5,12 +5,13 @@ export async function postLogin(credentials) {
     console.log("credentials recibidas en postLogin:", credentials);
     try {
         const response = await api.post("personales/login_personal/", credentials); 
-        const { access, refresh } = response.data;
+        const { message, access, refresh } = response.data;
         console.log("Tokens recibidos:", { access, refresh });
         if (!access || !refresh) {
             throw new Error("No se recibieron tokens del servidor.");
         }
-        return { access, refresh };
+        console.log("Mensaje del servidor:", message);
+        return { message, access, refresh };
     } catch (error) {
         console.error("Error en postLogin:", error);
         if (isAxiosError(error) && error.response) {

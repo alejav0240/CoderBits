@@ -1,9 +1,10 @@
 import React from 'react';
-import { useAttacks } from '../hooks/useAttacks';
+import { useAttacks } from '../../../services/query/useAttacks.js';
 import AttacksCard from './AttacksCard';
 import Pagination from '../../../shared/ui/Pagination';
 
 const AttacksList = () => {
+    
     const { 
         attacks, 
         loading, 

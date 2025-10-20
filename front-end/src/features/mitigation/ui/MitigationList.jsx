@@ -1,5 +1,5 @@
 import React from 'react';
-import { useMitigations } from '../hooks/useMitigations';
+import { useMitigaciones } from '../../../services/query/useMitigations';
 import MitigationCard from './MitigationCard';
 import MitigationFilters from './MitigationFilters';
 import Pagination from '../../../shared/ui/Pagination';
@@ -15,7 +15,7 @@ const MitigationList = () => {
         applyMitigation,
         changePage, 
         changeLimit 
-    } = useMitigations();
+    } = useMitigaciones();
 
     if (loading) return <div>Cargando mitigaciones...</div>;
     if (error) return <div>Error: {error}</div>;
