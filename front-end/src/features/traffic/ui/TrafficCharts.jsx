@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
-import { trafficService } from '../api/trafficService';
+//import { trafficService } from '../api/trafficService';
 
 const TrafficCharts = () => {
     const [trafficData, setTrafficData] = useState([]);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { trafficService } from '../api/trafficService';
+
 import { useTraffic } from '../hooks/useTraffic';
 
 const RealTimeTraffic = () => {
@@ -46,37 +46,37 @@ const RealTimeTraffic = () => {
                         <div className="row text-center">
                             <div className="col-md-2 mb-3">
                                 <div className="border rounded p-3">
-                                    <div className="h4 text-primary mb-1">{networkStatus.totalConnections}</div>
+                                    <div className="h4 text-primary mb-1">{networkStatus?.totalConnections}</div>
                                     <small className="text-muted">Conexiones Totales</small>
                                 </div>
                             </div>
                             <div className="col-md-2 mb-3">
                                 <div className="border rounded p-3">
-                                    <div className="h4 text-success mb-1">{networkStatus.activeConnections}</div>
+                                    <div className="h4 text-success mb-1">{networkStatus?.activeConnections}</div>
                                     <small className="text-muted">Conexiones Activas</small>
                                 </div>
                             </div>
                             <div className="col-md-2 mb-3">
                                 <div className="border rounded p-3">
-                                    <div className="h4 text-info mb-1">{networkStatus.bandwidthUsage}</div>
+                                    <div className="h4 text-info mb-1">{networkStatus?.bandwidthUsage}</div>
                                     <small className="text-muted">Uso de Ancho de Banda</small>
                                 </div>
                             </div>
                             <div className="col-md-2 mb-3">
                                 <div className="border rounded p-3">
-                                    <div className="h4 text-warning mb-1">{networkStatus.latency}</div>
+                                    <div className="h4 text-warning mb-1">{networkStatus?.latency}</div>
                                     <small className="text-muted">Latencia</small>
                                 </div>
                             </div>
                             <div className="col-md-2 mb-3">
                                 <div className="border rounded p-3">
-                                    <div className="h4 text-danger mb-1">{networkStatus.packetLoss}</div>
+                                    <div className="h4 text-danger mb-1">{networkStatus?.packetLoss}</div>
                                     <small className="text-muted">Pérdida de Paquetes</small>
                                 </div>
                             </div>
                             <div className="col-md-2 mb-3">
                                 <div className="border rounded p-3">
-                                    <div className="h4 text-secondary mb-1">{trafficData.length}</div>
+                                    <div className="h4 text-secondary mb-1">{trafficData?.length}</div>
                                     <small className="text-muted">Puntos de Datos</small>
                                 </div>
                             </div>
@@ -94,7 +94,7 @@ const RealTimeTraffic = () => {
                     </div>
                     <div className="card-body">
                         <ResponsiveContainer width="100%" height={400}>
-                            <LineChart data={trafficData.slice(-20)}> {/* Mostrar últimos 20 puntos */}
+                            <LineChart data={trafficData?.slice(-20)}> {/* Mostrar últimos 20 puntos */}
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis 
                                     dataKey="timestamp" 
@@ -143,7 +143,7 @@ const RealTimeTraffic = () => {
                     </div>
                     <div className="card-body">
                         <div className="list-group">
-                            {topTraffic.map((item, index) => (
+                            {topTraffic?.map((item, index) => (
                                 <div key={index} className="list-group-item">
                                     <div className="d-flex justify-content-between align-items-start">
                                         <div>

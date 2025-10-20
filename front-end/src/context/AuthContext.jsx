@@ -1,67 +1,52 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, {
+    createContext,
+    useContext,
+    useState,
+    useEffect,
+} from "react";
 
-// Crear el contexto
 const AuthContext = createContext(undefined);
 
-// Hook personalizado
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth debe ser usado dentro de un AuthProvider');
-  }
-  return context;
+export const AuthProvider = ({ children }) => { // Removed : React.FC<AuthProviderProps>
+
+    const [authenticated, setAuthenticated] = useState(false); // Removed <boolean>
+
+    useEffect(() => {
+        const access = localStorage.getItem("AUTH_CROCA");
+        const refresh = localStorage.getItem("REFRESH_CROCA");
+
+        if (access && refresh) {
+            setAuthenticated(true);
+        } else {
+            setAuthenticated(false);
+        }
+    }, []);
+
+    const login = (res) => { // Removed (res:LoginResponse)
+        localStorage.setItem("AUTH_CROCA", res.access);
+        localStorage.setItem("REFRESH_CROCA", res.refresh);
+        setAuthenticated(true);
+    };
+
+    const logout = () => {
+        localStorage.removeItem("AUTH_CROCA");
+        localStorage.removeItem("REFRESH_CROCA");
+        setAuthenticated(false);
+        window.location.href = "/login"; // Redirige si quieres
+    };
+
+    // The 'value' object implicitly defines the context shape in JS
+    return (
+        <AuthContext.Provider value={{ authenticated, login, logout }}>
+            {children}
+        </AuthContext.Provider>
+    );
 };
 
-// Provider
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  console.log('AuthProvider montándose'); // Debug
-
-  useEffect(() => {
-    console.log('AuthProvider useEffect ejecutándose'); // Debug
-    // Simular verificación de autenticación
-    setTimeout(() => {
-      const token = localStorage.getItem('token');
-      const userData = localStorage.getItem('user');
-      
-      console.log('Datos de localStorage - token:', token, 'user:', userData); // Debug
-      
-      if (token && userData) {
-        try {
-          setUser(JSON.parse(userData));
-        } catch (error) {
-          console.error('Error parsing user data:', error);
-        }
-      }
-      setLoading(false);
-      console.log('AuthProvider loading terminado'); // Debug
-    }, 100);
-  }, []);
-
-  const login = (token, userData) => {
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(userData));
-    setUser(userData);
-  };
-
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setUser(null);
-  };
-
-  const value = {
-    user,
-    login,
-    logout,
-    loading
-  };
-
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+export const useAuth = () => { // Removed (): AuthContextType
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error("useAuth must be used within an AuthProvider");
+    }
+    return context;
 };

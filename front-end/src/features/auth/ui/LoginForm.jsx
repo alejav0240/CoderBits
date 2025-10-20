@@ -1,102 +1,94 @@
-import React, { useState } from 'react';
-import { useAuth } from '../../../context/AuthContext';
-import { authService } from '../api/authService';
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema } from "../../../services/validations/authValidation"; 
+import { useLogin } from '../../../services/query/useAuth'; 
+import React from 'react'; // Importar React para JSX
 
 const LoginForm = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+    // Definición de handleSubmit: Se crea la función que maneja el envío.
+    const handleLogin = (data) => {
+        mutate(data);
+    };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm({
+        resolver: zodResolver(loginSchema),
+        defaultValues: {
+            // ✅ Campo 1: 'usuario'
+            usuario: "",
+            // ✅ Campo 2: 'contrasena' (Ajustado para coincidir con el uso en el input)
+            contrasena: "",
+        },
+    });
 
-    try {
-      // Para probar sin backend, usa estos datos de ejemplo
-      if (email === 'admin@test.com' && password === 'password') {
-        // Simular respuesta del servidor
-        const mockResponse = {
-          token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.mock-token',
-          user: {
-            id: 1,
-            name: 'Admin User',
-            email: 'admin@test.com'
-          }
-        };
-        
-        login(mockResponse.token, mockResponse.user);
-      } else {
-        // Intento de login real con el servicio
-        const response = await authService.login(email, password);
-        login(response.token, response.user);
-      }
-    } catch (error) {
-      setError(error.message || 'Credenciales incorrectas');
-    } finally {
-      setLoading(false);
-    }
-  };
+    // Se extrae la lógica de mutación y estado de pendiente del hook
+    const { mutate, isPending } = useLogin();
 
-  return (
-    <div className="card">
-      <div className="card-body">
-        <h3 className="card-title text-center">Iniciar Sesión</h3>
-        
-        {error && (
-          <div className="alert alert-danger" role="alert">
-            {error}
-          </div>
-        )}
+    // 💡 Corrección: La función que se pasa al form es handleSubmit, que envuelve a handleLogin
+    const onSubmit = handleSubmit(handleLogin); 
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <label htmlFor="email" className="form-label">Email</label>
-            <input
-              type="email"
-              className="form-control"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              placeholder="admin@test.com"
-            />
-          </div>
+    return (
+        <div className="card">
+            <div className="card-body">
+                <h3 className="card-title text-center">Iniciar Sesión</h3>
 
-          <div className="mb-3">
-            <label htmlFor="password" className="form-label">Contraseña</label>
-            <input
-              type="password"
-              className="form-control"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder="password"
-            />
-          </div>
+                {/* 💡 Corrección: Usamos la variable 'onSubmit' definida arriba */}
+                <form onSubmit={onSubmit}> 
+                    <div className="mb-3">
+                        {/* 💡 Mejora: La etiqueta 'htmlFor' debe coincidir con el 'id' del input */}
+                        <label htmlFor="usuario" className="form-label">Usuario</label>
+                        <input
+                            id="usuario"
+                            placeholder="admin@test.com"
+                            type="text"
+                            className="form-control"
+                            // ✅ Uso de campo: 'usuario'
+                            {...register("usuario")}
+                        />
+                        {/* Muestra errores del campo 'usuario' */}
+                        {errors.usuario && <span className="text-danger small">{errors.usuario.message}</span>}
+                    </div>
 
-          <button 
-            type="submit" 
-            className="btn btn-primary w-100"
-            disabled={loading}
-          >
-            {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
-          </button>
-        </form>
+                    <div className="mb-3">
+                        {/* 💡 Mejora: La etiqueta 'htmlFor' debe coincidir con el 'id' del input */}
+                        <label htmlFor="clave" className="form-label">Contraseña</label>
+                        <input
+                            type="password"
+                            className="form-control"
+                            // ✅ Se corrige el ID del input a 'clave' para coincidir con el defaultValue
+                            id="clave" 
+                            placeholder="password"
+                            // ✅ Se corrige el nombre del campo a 'contrasena'
+                            {...register("contrasena")}
+                        />
+                        {/* Muestra errores del campo 'contrasena' */}
+                        {errors.contrasena && <span className="text-danger small">{errors.contrasena.message}</span>}
+                    </div>
 
-        <div className="mt-3">
-          <small className="text-muted">
-            <strong>Credenciales de prueba:</strong><br />
-            Email: admin@test.com<br />
-            Password: password
-          </small>
+                    <button
+                        type="submit"
+                        className="btn btn-primary w-100"
+                        // ✅ Corrección: Usamos SÓLO 'isPending' del hook useLogin
+                        disabled={isPending} 
+                    >
+                        {/* ✅ Corrección: Usamos SÓLO 'isPending' para el texto */}
+                        {isPending ? 'Iniciando sesión...' : 'Iniciar Sesión'} 
+                    </button>
+                </form>
+
+                <div className="mt-3">
+                    <small className="text-muted">
+                        <strong>Credenciales de prueba:</strong><br />
+                        Email: admin@test.com<br />
+                        Password: password
+                    </small>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default LoginForm;
