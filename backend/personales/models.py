@@ -21,3 +21,11 @@ class Personal(models.Model):
         self.activo = False
         self.save()
         return Response({"message": "El usuario ha sido eliminado correctamente."}, status=status.HTTP_200_OK)
+    
+    @property
+    def is_active(self):
+        return self.activo
+    
+    @property
+    def is_authenticated(self):
+        return True
