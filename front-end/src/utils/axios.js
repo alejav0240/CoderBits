@@ -28,6 +28,7 @@ api.interceptors.response.use(
         const originalRequest = error.config ;
 
         if (error.response?.status === 401 && !originalRequest._retry) {
+            console.log("Token expirado, intentando renovar...");
             originalRequest._retry = true;
 
             const refresh = localStorage.getItem("REFRESH_CROCA");

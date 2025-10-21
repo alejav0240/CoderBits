@@ -8,6 +8,7 @@ from mitigaciones.models import Mitigacion
 
 from rest_framework import serializers, status
 from drf_spectacular.utils import extend_schema
+from rest_framework.response import Response as DRFResponse
 
 class DashboardStatsSerializer(serializers.Serializer):
     ataques_activos = serializers.IntegerField()
@@ -67,5 +68,37 @@ class ExportJsonView(APIView):
             }
 
             return Response(data)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class AnalyticsView(APIView):
+    """Devuelve datos de ejemplo para el dashboard (hourly, byType, bySeverity)."""
+    def get(self, request):
+        try:
+            data = {
+                "hourly": [
+                    {"hour": "20:00", "count": 15},
+                    {"hour": "21:00", "count": 22},
+                    {"hour": "22:00", "count": 18},
+                    {"hour": "23:00", "count": 35},
+                    {"hour": "00:00", "count": 28},
+                    {"hour": "01:00", "count": 12},
+                ],
+                "byType": [
+                    {"name": "DDoS", "value": 400},
+                    {"name": "SQL Injection", "value": 300},
+                    {"name": "XSS", "value": 300},
+                    {"name": "Botnet", "value": 200},
+                    {"name": "Phishing", "value": 150},
+                ],
+                "bySeverity": [
+                    {"severity": "Baja", "count": 550},
+                    {"severity": "Media", "count": 380},
+                    {"severity": "Alta", "count": 150},
+                ],
+            }
+
+            return DRFResponse(data)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

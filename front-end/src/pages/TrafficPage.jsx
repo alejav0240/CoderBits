@@ -13,7 +13,7 @@ const TrafficPage = () => {
                             <p className="text-muted mb-0">Visualización en tiempo real del tráfico de red y análisis de flujos</p>
                         </div>
                         <div className="card-body p-4">
-                            {/* <RealTimeTraffic /> */}
+                            <RealTimeTraffic /> 
                         </div>
                     </div>
                     
