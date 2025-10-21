@@ -1,10 +1,31 @@
 import threading
 import collections
 import time
-from scapy.all import sniff
-from scapy.layers.inet import IP, TCP, UDP
-from scapy.layers.inet6 import IPv6
-from scapy.layers.l2 import ARP
+import sys
+import os
+
+# ----------------------------------------------------------------------
+# SOLUCIÓN DEL ModuleNotFoundError
+# Añadir la carpeta raíz del proyecto al sys.path para permitir la importación de ML_Analisis
+# La ruta es CoderBits/
+# ----------------------------------------------------------------------
+
+# 1. Obtiene la ruta del directorio actual (conexiones/)
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# 2. Navega dos niveles arriba para llegar a la carpeta raíz CoderBits/
+# '..' va a backend/, '..' va a CoderBits/
+project_root = os.path.join(current_dir, '..', '..')
+
+# 3. Añade la carpeta CoderBits/ al PYTHONPATH
+if project_root not in sys.path:
+    sys.path.append(project_root)
+
+# ----------------------------------------------------------------------
+# RESTO DE IMPORTACIONES
+# ----------------------------------------------------------------------
+
+# Las importaciones de scapy (sniff, IP, TCP, etc.) ya no son necesarias para la captura principal
 from django.utils import timezone
 from django.db import close_old_connections
 from .models import Conexion
@@ -13,23 +34,27 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from ataques.utils import enviar_alerta_ws
 import socket
+from datetime import datetime
+
+# Importación del módulo de Machine Learning (corregida)
+# El bloque try/except ahora es redundante, ya que la ruta ha sido corregida.
+# Lo mantenemos con la importación directa.
+from ML_Analisis import monitor_trafico 
 
 # IP del dispositivo local - NO se registrarán ataques desde esta IP
+IP_DISPOSITIVO_LOCAL = "" # Se inicializa al final
 
 monitor_activo_event = threading.Event()  
 sniffer_iniciado = False
 
 SYN_WINDOW_SECONDS = 5
 SYN_THRESHOLD = 20
-
 PKT_WINDOW_SECONDS = 5
 PKT_THRESHOLD = 200
-
 PORTSCAN_WINDOW_SECONDS = 10
 PORTSCAN_PORTS_THRESHOLD = 15
-
 syn_records = {}      
-pkt_records = {}       
+pkt_records = {}      
 portscan_records = {} 
 
 
@@ -39,6 +64,10 @@ def trim_deque(dq, window_seconds):
         dq.popleft()
 
 def crear_evento_ataque(ip_origen, ip_destino, tipo, descripcion="Detectado por sniffer"):
+    """
+    Función de callback. Registra un ataque en la base de datos de Django 
+    y envía una alerta por WebSocket.
+    """
     if ip_origen == IP_DISPOSITIVO_LOCAL:
         print(f"[monitoreo] Ataque desde IP local ignorado: {tipo} {ip_origen} -> {ip_destino}")
         return
@@ -89,41 +118,23 @@ def evaluar_y_emitir(ip_origen, ip_destino):
             portscan_records[ip_origen] = {}
 
 
-def get_field(packet, layer, field):
-    if packet.haslayer(layer):
-        return getattr(packet[layer], field, "-")
-    return "-"
-
-
-def get_proto(packet):
-    for layer in [TCP, UDP, IPv6, IP, ARP]:
-        if packet.haslayer(layer):
-            return layer.__name__
-    return packet.lastlayer().name
-
-
-def packet_callback(packet):
-    if not monitor_activo_event.is_set():
-        return
-
-    ip_origen = get_field(packet, IP, "src") or get_field(packet, IPv6, "src")
-    ip_destino = get_field(packet, IP, "dst") or get_field(packet, IPv6, "dst")
-    puerto_destino = get_field(packet, TCP, "dport") or get_field(packet, UDP, "dport")
-    etiqueta = packet.lastlayer().name
-    protocolo = get_proto(packet)
-    timestamp = timezone.now()
-
-    if ip_origen in [None, "-"] or ip_destino in [None, "-"]:
-        return
+def register_connection(ip_src, ip_dst, port_dst, protocolo, timestamp):
+    """
+    Función de callback. Guarda la conexión en DB y la emite por WebSocket. 
+    Llamada por el módulo monitor_trafico.
+    """
+    # Asegura que el timestamp sea un objeto datetime con zona horaria
+    if isinstance(timestamp, datetime):
+        timestamp = timezone.make_aware(timestamp)
 
     try:
         close_old_connections()
         Conexion.objects.create(
             hora=timestamp,
-            ip_src=ip_origen,
-            ip_dst=ip_destino,
-            port_dst=(None if puerto_destino in [None, "-", ""] else puerto_destino),
-            etiqueta=etiqueta,
+            ip_src=ip_src,
+            ip_dst=ip_dst,
+            port_dst=(None if port_dst in [None, "-", ""] else port_dst),
+            etiqueta="ML_Flow",
             protocolo=protocolo
         )
 
@@ -135,9 +146,9 @@ def packet_callback(packet):
                 "data": {
                     "tipo_evento": "conexion",
                     "conexion": {
-                        "ip_src": ip_origen,
-                        "ip_dst": ip_destino,
-                        "port_dst": puerto_destino if puerto_destino not in [None, "-", ""] else None,
+                        "ip_src": ip_src,
+                        "ip_dst": ip_dst,
+                        "port_dst": port_dst if port_dst not in [None, "-", ""] else None,
                         "protocolo": protocolo,
                         "timestamp": timestamp.isoformat(),
                     }
@@ -147,58 +158,34 @@ def packet_callback(packet):
     except Exception as e:
         print("[monitoreo] Error guardando Conexion:", e)
 
-    if ip_origen == IP_DISPOSITIVO_LOCAL:
-        return
-
-    now = time.time()
-
-    dq_pkt = pkt_records.setdefault(ip_origen, collections.deque())
-    dq_pkt.append(now)
-
-    if packet.haslayer(TCP):
-        try:
-            flags = int(packet[TCP].flags)
-            if flags & 0x02:  
-                dq_syn = syn_records.setdefault(ip_origen, collections.deque())
-                dq_syn.append(now)
-        except Exception:
-            pass
-
-    try:
-        if puerto_destino not in [None, "-", ""]:
-            ports = portscan_records.setdefault(ip_origen, {})
-            ports[int(puerto_destino)] = now
-    except Exception:
-        pass
-
-    evaluar_y_emitir(ip_origen, ip_destino)
+# ----------------------------------------------------------------------
+# FUNCIONES DE CONTROL ACTUALIZADAS
+# ----------------------------------------------------------------------
 
 def start_sniffer():
+    """Inicia el monitoreo de tráfico usando el módulo de ML."""
     global sniffer_iniciado
     if sniffer_iniciado:
         monitor_activo_event.set()
         return
+    
     sniffer_iniciado = True
+    print(f"[monitoreo] IP local excluida de detección de ataques: {IP_DISPOSITIVO_LOCAL}")
+    
+    # Llama a la función de inicio del módulo de ML, pasándole las funciones callback
+    monitor_trafico.start_ml_monitoring(
+        attack_callback=crear_evento_ataque,
+        connection_callback=register_connection,
+        ip_local=IP_DISPOSITIVO_LOCAL
+    )
+    monitor_activo_event.set() # Mantenemos el evento local si es usado por otras partes del backend
 
-    monitor_activo_event.set()
-
-    def run():
-        print("[monitoreo] Captura de red iniciada en TODA la red")
-        print(f"[monitoreo] IP local excluida de detección de ataques: {IP_DISPOSITIVO_LOCAL}")
-        while True:
-            try:
-                sniff(prn=packet_callback, store=False, timeout=5)
-            except Exception as e:
-                print("[monitoreo] Error en Sniffer:", e)
-                time.sleep(1)
-
-    thread = threading.Thread(target=run, daemon=True)
-    thread.start()
 
 def stop_sniffer():
-    """Desactiva temporalmente el monitoreo sin matar el hilo"""
+    """Detiene el monitoreo llamando al módulo de ML."""
+    monitor_trafico.stop_ml_monitoring()
     monitor_activo_event.clear()
-    print("[monitoreo] Monitoreo pausado")
+    print("[monitoreo] Monitoreo pausado por ML.")
 
 def obtener_ip_local():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
