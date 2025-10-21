@@ -13,7 +13,7 @@ const AttacksPage = () => {
                             <p className="text-muted mb-0">Visualización en tiempo real de actividades maliciosas</p>
                         </div>
                         <div className="card-body p-4">
-                           {/* <AttacksCharts /> */}
+                           <AttacksCharts /> 
                         </div>
                     </div>
                     
