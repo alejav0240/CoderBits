@@ -140,10 +140,13 @@ def packet_callback(packet):
                         "port_dst": puerto_destino if puerto_destino not in [None, "-", ""] else None,
                         "protocolo": protocolo,
                         "timestamp": timestamp.isoformat(),
+                        "bytes": len(packet),      # 👈 NUEVO
+                        "packets": 1              # 👈 NUEVO
                     }
                 }
             }
         )
+
     except Exception as e:
         print("[monitoreo] Error guardando Conexion:", e)
 
