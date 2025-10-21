@@ -14,77 +14,65 @@ const MitigationCard = ({ mitigation, onApply }) => {
         }
     };
 
-    const getStatusBadge = (status) => {
-        const statusConfig = {
-            active: { class: 'bg-success', text: 'Activa' },
-            pending: { class: 'bg-warning', text: 'Pendiente' },
-            disabled: { class: 'bg-secondary', text: 'Desactivada' },
-            error: { class: 'bg-danger', text: 'Error' }
-        };
-        
-        const config = statusConfig[status] || statusConfig.disabled;
-        return <span className={`badge ${config.class}`}>{config.text}</span>;
+    const getStatusBadge = (activo) => {
+        return activo 
+            ? <span className="badge bg-success">Activa</span>
+            : <span className="badge bg-secondary">Desactivada</span>;
     };
 
-    const getSeverityBadge = (severity) => {
-        const severityConfig = {
-            high: { class: 'bg-danger', text: 'Alta' },
-            medium: { class: 'bg-warning', text: 'Media' },
-            low: { class: 'bg-info', text: 'Baja' }
+    const getResultBadge = (resultado) => {
+        if (!resultado) return null;
+        const colors = {
+            Éxito: 'bg-success',
+            Error: 'bg-danger',
+            Pendiente: 'bg-warning'
         };
-        
-        const config = severityConfig[severity] || severityConfig.medium;
-        return <span className={`badge ${config.class}`}>{config.text}</span>;
+        const colorClass = colors[resultado] || 'bg-secondary';
+        return <span className={`badge ${colorClass}`}>{resultado}</span>;
     };
 
     return (
         <div className="card h-100 shadow-sm">
             <div className="card-header bg-white d-flex justify-content-between align-items-center">
-                <h6 className="mb-0">{mitigation.name}</h6>
-                {getStatusBadge(mitigation.status)}
+                <h6 className="mb-0">{mitigation.detalle}</h6>
+                {getStatusBadge(mitigation.activo)}
             </div>
-            
+
             <div className="card-body">
-                <p className="card-text small">{mitigation.description}</p>
-                
                 <div className="mb-2">
-                    <strong>Tipo:</strong> {mitigation.type}
+                    <strong>IP:</strong> {mitigation.ip}
                 </div>
-                
+
                 <div className="mb-2">
-                    <strong>Severidad:</strong> {getSeverityBadge(mitigation.severity)}
+                    <strong>Resultado:</strong> {getResultBadge(mitigation.resultado)}
                 </div>
-                
-                <div className="mb-2">
-                    <strong>Reglas:</strong> {mitigation.ruleCount || 0}
-                </div>
-                
-                {mitigation.lastApplied && (
+
+                {mitigation.fecha_mitigacion && (
                     <div className="mb-2">
-                        <strong>Última aplicación:</strong> 
-                        <br/>
+                        <strong>Última aplicación:</strong>
+                        <br />
                         <small className="text-muted">
-                            {new Date(mitigation.lastApplied).toLocaleString()}
+                            {new Date(mitigation.fecha_mitigacion).toLocaleString()}
                         </small>
                     </div>
                 )}
+
+                {mitigation.ejecutado_por && (
+                    <div className="mb-2">
+                        <strong>Ejecutado por ID:</strong> {mitigation.ejecutado_por}
+                    </div>
+                )}
             </div>
-            
+
             <div className="card-footer bg-white">
                 <div className="d-grid gap-2">
                     <button
                         className="btn btn-primary btn-sm"
                         onClick={handleApply}
-                        disabled={isApplying || mitigation.status === 'active'}
+                        disabled={isApplying || mitigation.activo}
                     >
                         {isApplying ? 'Aplicando...' : 'Aplicar Mitigación'}
                     </button>
-                    
-                    {mitigation.source && (
-                        <small className="text-center text-muted">
-                            Fuente: {mitigation.source}
-                        </small>
-                    )}
                 </div>
             </div>
         </div>

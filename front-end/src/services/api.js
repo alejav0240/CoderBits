@@ -155,3 +155,5 @@ class ApiService {
 
 // Exportar una instancia única del servicio
 export const apiService = new ApiService();
+
+export default apiService;

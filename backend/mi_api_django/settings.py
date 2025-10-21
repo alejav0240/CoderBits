@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'drf_spectacular',
     'corsheaders',
     'roles',
     'personales',
@@ -63,12 +64,13 @@ MIDDLEWARE = [
 ]
 
 # Configuración CORS
-CORS_ALLOW_ALL_ORIGINS = True  # Solo para desarrollo
+#CORS_ALLOW_ALL_ORIGINS = True  # Solo para desarrollo
 # Para producción, especificar orígenes permitidos:
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:5173",
-#     "http://127.0.0.1:5173",
-# ]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:5173"
+]
 
 ROOT_URLCONF = 'mi_api_django.urls'
 
@@ -157,6 +159,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
     ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 AUTH_USER_MODEL = 'personales.Personal'
@@ -181,4 +184,13 @@ SIMPLE_JWT = {
 
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
     'TOKEN_TYPE_CLAIM': 'token_type',
+}
+
+# Configuración de drf-spectacular
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Título de tu API de Django',
+    'DESCRIPTION': 'Documentación de tu Backend con DRF y Spectacular',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False, 
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }

@@ -6,6 +6,26 @@ from ataques.models import Ataque
 from conexiones.models import Conexion
 from mitigaciones.models import Mitigacion
 
+from rest_framework import serializers, status
+from drf_spectacular.utils import extend_schema
+
+class DashboardStatsSerializer(serializers.Serializer):
+    ataques_activos = serializers.IntegerField()
+    ataques_hoy = serializers.IntegerField()
+    conexiones_hoy = serializers.IntegerField()
+    mitigaciones_exitosas = serializers.IntegerField()
+    ataques_ultimos_30_dias = serializers.IntegerField()
+
+
+class ExportJsonSerializer(serializers.Serializer):
+    ataques = serializers.ListField(child=serializers.DictField())
+    mitigaciones = serializers.ListField(child=serializers.DictField())
+
+
+@extend_schema(
+    responses=DashboardStatsSerializer,
+    description="Obtiene estadísticas generales del sistema: ataques activos, ataques del día, conexiones del día, mitigaciones exitosas, etc."
+)
 class DashboardStatsView(APIView):
     def get(self, request):
         try:
@@ -21,20 +41,22 @@ class DashboardStatsView(APIView):
             }
             return Response(data)
         except Exception as e:
-            return Response({"error": str(e)})
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@extend_schema(
+    responses=ExportJsonSerializer,
+    description="Exporta los ataques y mitigaciones detectados en la fecha actual en formato JSON."
+)
 class ExportJsonView(APIView):
     def get(self, request):
         try:
             hoy = timezone.now().date()
 
-            # Filtra solo los ataques detectados hoy
             ataques_hoy = Ataque.objects.filter(
                 fecha_detectado__date=hoy
             ).values()
 
-            # Filtra solo las mitigaciones hechas hoy
             mitigaciones_hoy = Mitigacion.objects.filter(
                 fecha_mitigacion__date=hoy
             ).values()
@@ -46,4 +68,4 @@ class ExportJsonView(APIView):
 
             return Response(data)
         except Exception as e:
-            return Response({"error": str(e)})
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
