@@ -5,7 +5,7 @@ const api = axios.create({
 });
 
 // Rutas donde NO se debe enviar el token
-const excludedRoutes = ["personales/login_personal/", "/api/login/", "/api/token/refresh/"];
+const excludedRoutes = ["personales/login_personal/", "/api/login/", "token/refresh/"];
 
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem("AUTH_CROCA");
@@ -37,7 +37,7 @@ api.interceptors.response.use(
             }
 
             try {
-                const res = await axios.post(`${import.meta.env.VITE_API_URL}/refresh/`, {
+                const res = await axios.post(`${import.meta.env.VITE_API_URL? import.meta.env.VITE_API_URL : 'http://localhost:8000/api/'}/refresh/`, {
                     refresh: refresh
                 });
 

@@ -7,6 +7,7 @@ export const useAttacks = (range) => {
     queryKey: ['attacks', range], // ✅ hace refetch al cambiar el rango
     queryFn: () => getAtacks(range),
     onSuccess: (data) => {
+      console.log('Attacks fetched successfully:', data);
       toast.success(data.message || 'Attacks fetched successfully');
     },
     onError: (error) => {

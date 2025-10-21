@@ -19,7 +19,7 @@ const AttacksPage = () => {
                     
                     <div className="card shadow-soft border-0">
                         <div className="card-body p-4">
-                            {/* <AttacksList /> */}
+                            <AttacksList /> 
                         </div>
                     </div>
                 </div>
