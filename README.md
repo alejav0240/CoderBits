@@ -57,7 +57,7 @@ Aplicar migraciones:
 Aplicar todas las migraciones automáticamente:	
 * python migrate_all.py
 Ver base de datos	
-* python manage.py dbshell:
+* python manage.py shell
 👤 Usuario administrador
 
 Crear un superusuario para acceder al panel de Django Admin:
