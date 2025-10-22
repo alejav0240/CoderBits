@@ -2,9 +2,16 @@ import React from "react";
 import RealTimeTraffic from "../features/traffic/ui/RealTimeTraffic";
 import TrafficCharts from "../features/traffic/ui/TrafficCharts";
 
-import { Shield, Network } from 'lucide-react'; 
+import { Shield, Network, Activity } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useActiveTraffic } from "../services/query/useActiveTrafic";
 const TrafficPage = () => {
+  const { mutate } = useActiveTraffic();
+
+  // Función que se llama al hacer clic
+  const handleOnclick = () => {
+    mutate();
+  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
       {/* Header */}
@@ -13,12 +20,13 @@ const TrafficPage = () => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
               <Shield className="w-8 h-8 text-cyan-400" />
-              <span className="text-xl font-bold text-white">
-                Sistema IDS
-              </span>
+              <span className="text-xl font-bold text-white">Sistema IDS</span>
             </div>
             <div className="flex items-center space-x-4">
-              <Link to="/dashboard" className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm transition-colors">
+              <Link
+                to="/dashboard"
+                className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm transition-colors"
+              >
                 Dashboard
               </Link>
               <button className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm transition-colors">
@@ -32,15 +40,26 @@ const TrafficPage = () => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Title */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2 flex items-center space-x-3">
-            <Network className="w-8 h-8 text-cyan-400" />
-            <span>Tráfico en Tiempo Real</span>
-          </h1>
-          <p className="text-slate-400">
-            Monitoreo de red y análisis de flujo de datos en vivo
-          </p>
+        <div className="flex items-center justify-between mb-6">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-white mb-2 flex items-center space-x-3">
+              <Network className="w-8 h-8 text-cyan-400" />
+              <span>Tráfico en Tiempo Real</span>
+            </h1>
+            <p className="text-slate-400">
+              Monitoreo de red y análisis de flujo de datos en vivo
+            </p>
+          </div>
+
+          <button
+            onClick={handleOnclick}
+            className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white rounded-lg font-semibold transition-all hover:scale-105 flex items-end space-x-2"
+          >
+            <Activity className="w-4 h-4" />
+            <span>Iniciar Monitoreo </span>
+          </button>
         </div>
+
         <RealTimeTraffic />
 
         {/*                    
