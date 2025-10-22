@@ -17,7 +17,7 @@ function App() {
     <Router>
       <AuthProvider>
         <div className="App">
-          <Navbar />
+          {/*<Navbar />*/}
           <main className="main-content">
             <Routes>
               <Route path="/" element={<HomePage />} />
@@ -31,7 +31,7 @@ function App() {
                 } 
               />
               <Route 
-                path="/users" 
+                path="/dashboard/users" 
                 element={
                   <PrivateRoute>
                     <UsersPage />
@@ -39,7 +39,7 @@ function App() {
                 } 
               />
               <Route 
-                path="/mitigation" 
+                path="/dashboard/mitigation" 
                 element={
                   <PrivateRoute>
                     <MitigationPage />
@@ -47,7 +47,7 @@ function App() {
                 } 
               />
               <Route 
-                path="/attacks" 
+                path="/dashboard/attacks" 
                 element={
                   <PrivateRoute>
                     <AttacksPage />
@@ -55,7 +55,7 @@ function App() {
                 } 
               />
               <Route 
-                path="/traffic" 
+                path="/dashboard/traffic" 
                 element={
                   <PrivateRoute>
                     <TrafficPage />
