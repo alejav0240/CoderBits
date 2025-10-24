@@ -1,214 +1,308 @@
-CoderBits – Captura de Red y Monitoreo
+# CoderBits — Captura de Red y Monitoreo (IDS con ML)
 
-Este proyecto es una API en Django que captura tráfico de red y lo guarda en la base de datos.
-Incluye un panel de administración para activar/desactivar la captura y gestionar las conexiones registradas.
+**Descripción corta**
+Proyecto para captura y monitoreo de tráfico de red basado en Django (API + WebSocket), con un módulo de detección basado en Machine Learning entrenado sobre CIC-IDS2017. Incluye frontend en React (Vite) y app móvil en React Native para visualización y control.
 
-📌 Requisitos
-Tener permisos de administrador para el bloqueo de IPs
+---
 
-Python 3.13 o superior
+## 🔎 Resumen de componentes
 
-PostgreSQL 17 (o cualquier base de datos compatible con Django)
+* **Backend**: Django REST API + WebSockets (Daphne / Channels). Gestiona captura, almacenamiento, alertas y mitigaciones.
+* **Machine Learning**: Modelo entrenado (Keras/TensorFlow) con features del dataset **CIC-IDS2017**. Inferencia en tiempo real desde un sniffer (Scapy) que envía resultados al backend.
+* **Frontend**: React + Vite para panel de control, administración y visualización en tiempo real.
+* **Mobile**: React Native (expo o CLI) para notificaciones y visualización rápida en móvil.
+* **DB**: PostgreSQL (recomendado) — tablas: `Conexion`, `Ataque`, `Mitigacion`, `Personal`, `Roles`, etc.
+* **Captura de paquetes**: Npcap (Windows) / libpcap (Linux/macOS).
 
-Windows: Npcap
- (para captura de paquetes de red)
+---
 
-⚙️ Configuración del proyecto
+## 📌 Requisitos
 
-Crear entorno virtual (desde la raíz del proyecto)
+* **Python** 3.13+
+* **PostgreSQL** 17 (u otra BD compatible Django)
+* **Node.js** 18+ (para frontend y mobile)
+* **Npcap** (Windows) o `libpcap` (Linux)
+* Permisos de administrador/root para capturar paquetes y bloquear IPs
+* (Opcional) GPU con drivers y TensorFlow compatible si entrenarás modelos grandes
 
+---
+
+## ⚙️ Configuración (Backend)
+
+1. Clonar repo y crear entorno:
+
+```bash
+git clone <repo-url>
+cd CoderBits
 python -m venv venv
-
-
-Activar entorno virtual
-
-# Windows
+# activar
+# Windows:
 venv\Scripts\activate
-
-# Linux / Mac
+# Linux / macOS:
 source venv/bin/activate
+```
 
+2. Instalar dependencias:
 
-Instalar dependencias
-
+```bash
 pip install -r requirements.txt
+```
 
-Variables de entorno
-Crear un archivo .env en la raíz del proyecto:
+3. Variables de entorno: crea un `.env` en la raíz (usa .env.example como guía):
 
+```
+SECRET_KEY=tu_secret_key
 DB_NAME=nombre_bd
 DB_USER=usuario
 DB_PASSWORD=contraseña
 DB_HOST=localhost
 DB_PORT=5432
+DJANGO_DEBUG=True
+ALLOWED_HOSTS=127.0.0.1,localhost
+```
 
-Como ejemplo se tiene el archivo .env.example mantener SECRET_KEY para no tener problemas
+4. Crear BD y migraciones:
 
-🗄️ Base de datos y migraciones
+```bash
+# crear migraciones
+python manage.py makemigrations
+# aplicar migraciones
+python manage.py migrate
+# aplicar todas (si tienes script)
+python migrate_all.py
+```
 
-Crear una base de datos en PostgreSQL y en el query hacer correr
-postgresql_IDS.sql los datos iniciales que se tienen en la base de datos. 
+5. Cargar datos iniciales (si aplica):
 
-Acción	Comando
-Crear nuevas migraciones:	
-* python manage.py makemigrations
-Aplicar migraciones:
-* python manage.py migrate
-Aplicar todas las migraciones automáticamente:	
-* python migrate_all.py
-Ver base de datos	
-* python manage.py shell
-👤 Usuario administrador
+Ejecutar `postgresql_IDS.sql` en tu instancia de PostgreSQL para poblar datos iniciales.
 
-Crear un superusuario para acceder al panel de Django Admin:
+6. Crear superusuario Django:
 
+```bash
 python manage.py createsuperuser
+# abrir http://127.0.0.1:8000/admin/
+```
 
-<<<<<<< Updated upstream
+---
 
-Ingresa usuario, correo y contraseña. Luego abrir en el navegador:
-http://127.0.0.1:8000/admin/
+## 🚀 Run (Desarrollo)
 
-🚀 Levantar servidor de desarrollo
+* Servidor Django (dev):
+
+```bash
 python manage.py runserver
-=======
-🚀 Levantar servidor de desarrollo:
-* python manage.py runserver
->>>>>>> Stashed changes
-🚀 Levantar servidor con webSocket
+```
+
+* Servidor ASGI con Daphne (WebSockets):
+
+```bash
 daphne -p 8000 mi_api_django.asgi:application
+```
 
+* Visitar:
 
-Visitar en el navegador:
-http://127.0.0.1:8000/
+  * API: `http://127.0.0.1:8000/api/`
+  * Admin: `http://127.0.0.1:8000/admin/`
 
-Ingresa usuario, correo y contraseña. Luego abrir en el navegador:
-http://127.0.0.1:8000/admin/
+---
 
+## 📡 Captura de red (Sniffer)
 
-🖧 Captura de red (Sniffer)
+* La captura puede activarse desde el panel admin o programáticamente:
 
-La captura se ejecuta en segundo plano automáticamente.
-
-Para activar o desactivar la captura:
-
+```python
 from conexiones.monitoreo import monitor_activo
+monitor_activo = True  # o False
+```
 
-monitor_activo = True   # Activar captura
-monitor_activo = False  # Desactivar captura
+* Los flujos capturados se guardan en la tabla `Conexion`.
+* Para ejecutar el sniffer local con Scapy (ejemplo):
 
+```bash
+sudo python monitor_cicids.py  # script de ejemplo que extrae 78 features y hace inferencia
+```
 
-También puedes hacerlo desde el panel de administración con los botones:
-Activar Monitoreo / Desactivar Monitoreo
+---
 
-No se crean tablas adicionales; todo se guarda en la tabla Conexion.
+## 🧠 Machine Learning
 
-🔒 Hasheo de contraseñas (opcional)
+### Estructura y artefactos
 
-Si deseas cambiar la contraseña de un usuario desde la base de datos:
+* `modelo_cicids2017.h5` — Modelo Keras (inferencia).
+* `scaler.pkl` — `StandardScaler` usado para normalizar features de entrada.
+* Features esperadas: **78 columnas** (CIC-IDS2017 — todas las columnas numéricas excepto `Label`).
+* Dataset: CIC-IDS2017 (usado para entrenamiento / validación).
 
-python manage.py shell
+### Reentrenamiento (básico)
 
-from django.contrib.auth.hashers import make_password
-from personales.models import Personal
+1. Preparar CSVs del CIC-IDS2017 y concatenarlos.
+2. Limpieza: eliminar columnas no numéricas, strip de headers, manejo `NaN`, `inf`.
+3. Label encoding: `Label` → indices.
+4. Train/Test split (estratificado).
+5. `StandardScaler().fit(X_train)` → guardar con `joblib.dump(scaler, 'scaler.pkl')`
+6. Entrenar red (ej. Keras `Sequential` densa) con `sparse_categorical_crossentropy`.
+7. Guardar modelo: `model.save('modelo_cicids2017.h5')`
 
-user = Personal.objects.get(usuario="wass")
-user.contrasena = make_password("12345678")
-user.save()
+### Inferencia en tiempo real
 
-📦 Congelar librerías
+* **Pipeline**:
 
-Para exportar las dependencias instaladas:
+  1. Sniffer (Scapy) agrupa paquetes por flow key (src,dst,src_port,dst_port,proto).
+  2. Extractor calcula las **78 features** compatibles con CICFlowMeter.
+  3. `scaler.transform(features)` → `model.predict(...)`.
+  4. Resultado: enviar evento por WebSocket a `ws://127.0.0.1:8000/ws/alertas/` y guardar registro en DB.
 
-pip freeze > requirements.txt
+> ⚠️ Importante: asegúrate de que `scaler` y el modelo sean los mismos que se usaron en entrenamiento; si hay mismatch de número de features obtendrás errores.
 
-Esto facilita instalar todo en otro equipo con:
+---
 
-pip install -r requirements.txt
+## 🧩 Frontend (React + Vite)
 
-💻 Endpoints de la API
-La API de CoderBits expone las siguientes rutas para interactuar con los datos de captura de red y gestión del sistema. Todas las rutas siguen una convención RESTful y están precedidas por la base /api/.
+### Estructura
 
-1. Conexiones (conexiones) 🌐
-Gestiona los registros de tráfico de red capturado.
+* Carpeta: `frontend/`
+* Stack: React + Vite, React Router, SWR/React Query o Redux, Tailwind (opcional).
 
-* GET /api/conexiones/ - Lista todas las conexiones de red registradas.
+### Setup local
 
-* GET /api/conexiones/<id>/ - Recupera los detalles de una conexión específica.
+```bash
+cd frontend
+npm install
+# dev
+npm run dev
+# build
+npm run build
+# preview del build
+npm run preview
+```
 
-* POST /api/conexiones/activar_monitoreo/ - Inicia el monitoreo de tráfico.
+### Variables de entorno
 
-* POST /api/conexiones/desactivar_monitoreo/ - desactiva el monitoreo de tráfico.
+Crea `.env.local` en `frontend/`:
 
-2. Roles (roles) 🛡️
-Permite la gestión de roles de usuario para el control de acceso.
+```
+VITE_API_BASE_URL=http://127.0.0.1:8000/api
+VITE_WS_URL=ws://127.0.0.1:8000/ws/monitoreo/
+```
 
-* GET /api/roles/ - Lista todos los roles de usuario definidos.
+### Funcionalidades principales del frontend
 
-* POST /api/roles/ - Crea un nuevo rol.
+* Dashboard en tiempo real (con WebSocket)
+* Panel para activar/desactivar monitoreo
+* Visualización de conexiones y ataques detectados
+* Páginas de administración (usuarios, roles, mitigaciones)
+* Reportes y export (JSON/CSV)
 
-* GET /api/roles/<id>/ - Recupera los detalles de un rol específico.
+---
 
-* PUT/PATCH /api/roles/<id>/ - Actualiza (total o parcial) un rol.
+## 📱 Mobile (React Native)
 
-* DELETE /api/roles/<id>/ - Elimina un rol.
+### Setup (con Expo recomendado)
 
-3. Personal (personales) 👤
-Administra la información del personal o usuarios del sistema.
+```bash
+# con expo
+npm install -g expo-cli
+cd mobile
+npm install
+expo start
+```
 
-* GET /api/personales/ - Lista todos los usuarios/personal registrados.
+Variables `.env` o config local:
 
-* POST /api/personales/ - Crea un nuevo registro de usuario.
+```
+API_BASE_URL=http://127.0.0.1:8000/api
+WS_URL=ws://127.0.0.1:8000/ws/alertas/
+```
 
-* GET /api/personales/<id>/ - Recupera los detalles de un usuario.
+Funcionalidades:
 
-* PUT/PATCH /api/personales/<id>/ - Actualiza (total o parcial) un usuario.
+* Conexión a WebSocket para alertas push en la app
+* Listado de ataques recientes y detalles
+* Botón rápido para desactivar/activar monitoreo (si permisos lo permiten)
 
-* DELETE /api/personales/<id>/ - Elimina un usuario.
+---
 
-* DELETE /api/personales/<id>/restaurar/ - restaura al usuario eliminado
+## 🔗 Endpoints principales (resumen)
 
-* POST /api/personales/login_personal/ - inicio de sesion
+### Conexiones
 
-4. Ataques (ataques) 🚨
-Gestiona la información o registros relacionados con ataques detectados.
+* `GET /api/conexiones/`
+* `GET /api/conexiones/<id>/`
+* `POST /api/conexiones/activar_monitoreo/`
+* `POST /api/conexiones/desactivar_monitoreo/`
 
-* GET /api/ataques/ - Lista todos los registros de ataques detectados.
+### Personal / Roles
 
-* GET /api/ataques/<id>/ - Recupera los detalles de un ataque específico.
+* `GET /api/personales/`, `POST /api/personales/`, `GET/PUT/DELETE /api/personales/<id>/`
+* `POST /api/personales/login_personal/`
 
-5. Mitigaciones (mitigaciones) ✅
-Gestiona las estrategias o acciones de mitigación implementadas.
+### Ataques / Mitigaciones
 
-* GET /api/mitigaciones/ - Lista todas las estrategias de mitigación.
+* `GET /api/ataques/`, `GET /api/ataques/<id>/`
+* `GET /api/mitigaciones/`, `POST /api/mitigaciones/<id>/activar/`, `POST /api/mitigaciones/<id>/desactivar/`
 
-* GET /api/mitigaciones/<id>/ - Recupera los detalles de una mitigación específica.
+### Dashboard / Reportes
 
-* POST /api/mitigaciones/<id>/activar/ - Realizar una mitigacion.
+* `GET /api/dashboard/stats/`
+* `GET /api/dashboard/export/json/`
 
-* POST /api/mitigaciones/<id>/activar/ - Bloquea la ip en nivel firewall
+### WebSockets
 
-* POST /api/mitigaciones/<id>/desactivar/ - Quita el bloqueo de la ip
+* `ws://127.0.0.1:8000/ws/monitoreo/` — eventos de conexiones en tiempo real
+* `ws://127.0.0.1:8000/ws/alertas/` — alertas de seguridad / ataques detectados
 
-6. WebSocket
+---
 
-* ws://127.0.0.1:8000/ws/monitoreo/ 
-* ws://127.0.0.1:8000/ws/alertas/ 
+## 🧪 Testing y QA
 
-7. 
-GET /api/dashboard/stats/ - Estadisticas(conteo de ataques, mitigaciones, etc... el dia de hoy)
-GET /api/dashboard/export/json/  - Datos para el reporte
+* Test unitarios Django: `python manage.py test`
+* Pruebas manuales: usar tu plan de pruebas (Test Plan Excel)
+* Integración ML: validar pipeline de features (78 features) → scaler → modelo
+* Pruebas de stress: simular tráfico con `traffic_simulator_no_api.py`:
 
-Ejecución de Simulación de Ataque
-Para simular el ataque usando el script de Python, solo necesitas navegar al directorio y ejecutar el comando(script en ataques).
-
-1. Ir al directorio:
-
-Bash
-
+```bash
 cd backend/ataques/
-2. Ejecutar la simulación:
+python traffic_simulator_no_api.py -t <ip_dispositivo> -m all -d 15 --threads 4
+```
 
-Bash
+---
 
-python traffic_simulator_no_api.py -t ip_del_dispositivo -m all -d 15 --threads 4
+## 🛠️ Troubleshooting común
+
+* **`ModuleNotFoundError: No module named 'sklearn'`** → `pip install scikit-learn`
+* **Scaler espera 78 features pero recibe X** → Asegúrate de extraer exactamente las 78 columnas en el mismo orden con el que entrenaste el scaler.
+* **Permisos para sniffing** → Ejecuta scripts con `sudo` o como administrador; instala Npcap en Windows.
+* **Daphne / Channels** → Asegúrate de tener `channels` y `daphne` instalados y configurado `ASGI_APPLICATION`.
+* **TensorFlow logs (oneDNN)**: mensaje informativo — no crítico.
+
+---
+
+## 🧾 Buenas prácticas
+
+* Versiona tu `scaler.pkl` y `modelo_cicids2017.h5` junto con el commit que los generó (o registra hashes).
+* Mantén un `requirements.txt` actualizado (`pip freeze > requirements.txt`) y, preferiblemente, un archivo `environment.yml` o Dockerfile.
+* Documenta el **orden exacto de las 78 features** en un archivo (por ejemplo `features_list.csv`) y consúmelo desde tu extractor para evitar bugs.
+
+---
+
+## 📁 Archivos importantes en el repo
+
+* `backend/` — código Django
+* `backend/monitor_cicids.py` — sniffer + extractor
+* `backend/models/` — modelos Django (Conexion, Ataque, Mitigacion, Personal)
+* `frontend/` — React + Vite
+* `mobile/` — React Native
+* `model/` — `modelo_cicids2017.h5`, `scaler.pkl`, `features_list.csv`
+* `docs/` — documentos (test plans, diagramas, etc.)
+
+---
+
+## 👥 Contribución
+
+Si vas a contribuir:
+
+1. Revisa issues y ramas en GitHub.
+2. Crea branch: `feature/<descripcion>`
+3. PR con descripción y screenshots.
+4. Añade tests y documentación.
+
