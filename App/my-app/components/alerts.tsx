@@ -1,14 +1,15 @@
-// components/Alerts.tsx (CORREGIDO)
+// components/Alerts.tsx
 import React, { useEffect } from 'react';
 import { Alert } from 'react-native';
 import * as Notifications from 'expo-notifications'; // Asegúrate de tener este import
+
 // Reemplaza con la IP real de tu servidor (no localhost)
-const WS_URL = 'ws://192.168.1.XX:8000/ws/alertas/'; 
+const WS_URL = 'ws://127.0.0.1:8000/ws/alertas/'; 
 
 export function WebSocketAlerts() {
   useEffect(() => {
     
-    // **AQUÍ SE DEFINE LA FUNCIÓN handleAlert (Solución)**
+    //AQUÍ SE DEFINE LA FUNCIÓN handleAlert (Solución)
     async function handleAlert(alertData: any) {
         // Asegúrate de solicitar permisos
         const { status } = await Notifications.requestPermissionsAsync();
@@ -29,7 +30,6 @@ export function WebSocketAlerts() {
             trigger: null,
         });
     }
-    // **FIN DE LA DEFINICIÓN**
 
     // 1. Crear el objeto WebSocket
     const ws = new WebSocket(WS_URL);
@@ -52,8 +52,6 @@ export function WebSocketAlerts() {
         console.error('Error al parsear el mensaje WS:', error);
       }
     };
-
-    // ... (El resto del código: onclose, return cleanup)
     
     return () => {
       ws.close();

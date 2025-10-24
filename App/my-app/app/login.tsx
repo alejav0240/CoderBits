@@ -1,7 +1,7 @@
 // app/login.tsx
 import React, { useState } from 'react';
 import { View, TextInput, Button, Alert, Text, StyleSheet } from 'react-native';
-import api from '../service/api';
+import api from '../services/api';
 import { router } from 'expo-router';
 // Importa tu librería de almacenamiento seguro (ej: expo-secure-store)
 

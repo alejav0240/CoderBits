@@ -2,18 +2,16 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { WebSocketAlerts } from '../../components/alerts';
-import HistoryScreen from '../history';
+
 
 export default function DashboardScreen() {
   // <WebSocketAlerts /> se conectará al cargar la pantalla
   return (
     <View style={styles.container}>
-            <WebSocketAlerts /> 
             <Text style={styles.title}>Dashboard Principal</Text>
             
             {/* 🛑 ERROR: HistoryScreen(); (Llamada a función JS) */}
             {/* ✅ CORRECCIÓN: Usar la sintaxis de componente JSX: */}
-            <HistoryScreen /> 
             
         </View>
   );
