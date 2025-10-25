@@ -3,6 +3,7 @@ from django.urls import path, include
 from django.http import JsonResponse
 from rest_framework_simplejwt.views import TokenRefreshView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
+from personales.views import PersonalViewSet, login_personal, logout_personal
 
 def api_root(request):
     return JsonResponse({
@@ -33,4 +34,5 @@ urlpatterns = [
     path('api/', include('mitigaciones.urls')),
     path('api/', include('dashboard.urls')),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/logout_personal/', logout_personal, name='logout_personal'),
 ]

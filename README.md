@@ -235,6 +235,7 @@ Funcionalidades:
 
 * `GET /api/personales/`, `POST /api/personales/`, `GET/PUT/DELETE /api/personales/<id>/`
 * `POST /api/personales/login_personal/`
+* `api/logout_personal/`
 
 ### Ataques / Mitigaciones
 
