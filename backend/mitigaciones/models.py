@@ -9,7 +9,7 @@ class Mitigacion(models.Model):
     ataque = models.ForeignKey(Ataque, on_delete=models.CASCADE, related_name="mitigaciones")
     detalle = models.TextField(null=True, blank=True)
     ip = models.TextField(null=True, blank=True)
-    ejecutado_por = models.ForeignKey(Personal, on_delete=models.SET_NULL, null=True, blank=True)
+    ejecutado_por = models.ForeignKey(Personal, on_delete=models.SET_NULL, null=True, blank=True, default=1)
     activo = models.BooleanField(default=True)
     fecha_mitigacion = models.DateTimeField(auto_now_add=True)
     resultado = models.CharField(max_length=100, null=True, blank=True)

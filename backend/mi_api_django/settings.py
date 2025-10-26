@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     'mitigaciones',
     'dashboard',
     'channels',
+    'rest_framework_simplejwt.token_blacklist',
+
 ]
 
 MIDDLEWARE = [
@@ -61,6 +63,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'personales.middleware.BlacklistAccessTokenMiddleware',
 ]
 
 # Configuración CORS

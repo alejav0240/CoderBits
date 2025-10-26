@@ -7,6 +7,7 @@ from django.contrib.auth.hashers import check_password
 from .models import Personal
 from .serializers import PersonalSerializer
 from drf_spectacular.utils import extend_schema
+from .models import BlacklistedToken
 
 class PersonalViewSet(viewsets.ModelViewSet):
     queryset = Personal.objects.all()
@@ -112,3 +113,24 @@ def login_personal(request):
         'rol': personal.rol.nombre_rol if personal.rol else None,
         'message': 'Inicio de sesión exitoso'
     }, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def logout_personal(request):
+    try:
+        refresh_token = request.data.get("refresh")
+        access_token = request.data.get("access")
+
+        if not refresh_token or not access_token:
+            return Response({"error": "Se requiere refresh y access token"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Blacklist refresh token
+        refresh = RefreshToken(refresh_token)
+        refresh.blacklist()
+
+        # Blacklist access token
+        BlacklistedToken.objects.create(token=access_token)
+
+        return Response({"message": "Logout exitoso. Tokens invalidados."}, status=status.HTTP_205_RESET_CONTENT)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

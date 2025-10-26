@@ -3,9 +3,22 @@ from .models import Mitigacion
 import subprocess
 
 class MitigacionSerializer(serializers.ModelSerializer):
+    nombre_ataque = serializers.CharField(source='ataque.tipo', read_only=True)
+    ejecutado_por_nombre = serializers.CharField(source='ejecutado_por.nombre', read_only=True)
     class Meta:
         model = Mitigacion
-        fields = ['id', 'ataque', 'ip', 'detalle', 'ejecutado_por', 'activo', 'fecha_mitigacion', 'resultado']
+        fields = [
+            'id',
+            'ataque',
+            'nombre_ataque',
+            'ip',
+            'detalle',
+            'ejecutado_por',
+            'ejecutado_por_nombre',
+            'activo',
+            'fecha_mitigacion',
+            'resultado'
+        ]
 
     def bloquear_ip(self):
         ip = self.ataque.ip_origen
