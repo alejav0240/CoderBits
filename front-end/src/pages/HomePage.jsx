@@ -84,18 +84,18 @@ const HomePage = () => {
                 </div>
                 
                 <div className="flex flex-wrap justify-center gap-4">
-                  <button className="px-8 py-4 bg-cyan-600 hover:bg-cyan-700 text-white rounded-xl font-semibold shadow-lg shadow-cyan-500/30 transition-all hover:scale-105 flex items-center space-x-2">
+                  <Link to="/dashboard" className="px-8 py-4 bg-cyan-600 hover:bg-cyan-700 text-white rounded-xl font-semibold shadow-lg shadow-cyan-500/30 transition-all hover:scale-105 flex items-center space-x-2">
                     <Activity className="w-5 h-5" />
                     <span>Panel de Control</span>
-                  </button>
-                  <button className="px-8 py-4 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-semibold transition-all hover:scale-105 flex items-center space-x-2">
+                  </Link>
+                  <Link to="/dashboard/attacks" className="px-8 py-4 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-semibold transition-all hover:scale-105 flex items-center space-x-2">
                     <AlertTriangle className="w-5 h-5" />
                     <span>Ver Alertas</span>
-                  </button>
-                  <button className="px-8 py-4 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-semibold transition-all hover:scale-105 flex items-center space-x-2">
+                  </Link>
+                  <Link to="/dashboard/traffic" className="px-8 py-4 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-semibold transition-all hover:scale-105 flex items-center space-x-2">
                     <Eye className="w-5 h-5" />
                     <span>Monitoreo en Vivo</span>
-                  </button>
+                  </Link>
                 </div>
               </div>
             ) : (

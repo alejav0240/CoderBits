@@ -11,6 +11,7 @@ import MitigationPage from './pages/MitigationPage';
 import AttacksPage from './pages/AttacksPage';
 import TrafficPage from './pages/TrafficPage';
 import './App.css';
+import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
   return (
@@ -62,6 +63,9 @@ function App() {
                   </PrivateRoute>
                 } 
               />
+              
+              {/* ✅ Ruta comodín para cualquier otra URL */}
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </main>
         </div>
