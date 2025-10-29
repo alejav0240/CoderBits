@@ -4,24 +4,27 @@ import MitigationCard from "./MitigationCard";
 import MitigationFilters from "./MitigationFilters";
 import Pagination from "../../../shared/ui/Pagination";
 import StatsCards from "./StatsCards";
+import { AlertTriangle } from "lucide-react";
 
 const MitigationList = () => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
-  const [filters, setFilters] = useState({});
+  const [filters, setFilters] = useState({ page, limit });
 
-  const { data, isLoading, isError, error } = useMitigaciones(
-    page,
-    limit,
-    filters
-  );
+  const { data, isLoading, isError, error } = useMitigaciones(filters);
 
-  const mitigations = data || [];
-  const pagination = data?.pagination || {};
+  if (isLoading) return <div>Cargando mitigaciones...</div>;
+  if (isError) return <div>Error: {error.message ? error.message : "Error desconocido"}</div>;
 
-  const applyFilters = (newFilters) => {
-    setFilters(newFilters);
-    setPage(1); // reset página al aplicar filtros
+  const mitigations = data?.results || [];
+  const totalPages = Math.ceil((data?.count || 0) / 10);
+
+  console.log("Mitigaciones cargadas:", mitigations);
+  const stats = {
+    total: mitigations.length,
+    active: mitigations.filter((m) => m.activo).length,
+    success: mitigations.filter((m) => m.resultado === "Éxito").length,
+    pending: mitigations.filter((m) => m.resultado === "Pendiente").length,
   };
 
   const applyMitigation = (mitigationId) => {
@@ -29,20 +32,15 @@ const MitigationList = () => {
     // aquí podrías usar un useMutation para aplicar la mitigación
   };
 
-const stats = {
-    total: mitigations.length,
-    active: mitigations.filter(m => m.activo).length,
-    success: mitigations.filter(m => m.resultado === 'Éxito').length,
-    pending: mitigations.filter(m => m.resultado === 'Pendiente').length
-  };
-
-  if (isLoading) return <div>Cargando mitigaciones...</div>;
-  if (isError) return <div>Error: {error.message}</div>;
-
   return (
     <div>
       <StatsCards stats={stats} />
-      <MitigationFilters filters={filters} onFilterChange={applyFilters} />
+      <MitigationFilters
+        onFilterChange={(newFilters) => {
+          setFilters(newFilters);
+          setPage(1);
+        }}
+      />
 
       {mitigations.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
@@ -66,8 +64,7 @@ const stats = {
         </div>
       )}
 
-
-      {mitigations.length > 0 && (
+      {mitigations.length > 0 && false && (
         <Pagination
           pagination={pagination}
           onPageChange={setPage}
