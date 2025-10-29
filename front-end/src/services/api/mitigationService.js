@@ -10,3 +10,9 @@ export async function getMitigaciones(params) {
         throw error;
     }
 }
+
+export const toggleMitigation = async ({ id, activo }) => {
+  const action = activo ? "desactivar" : "activar";
+  const { data } = await api.post(`/mitigaciones/${id}/${action}/`);
+  return { data, id, action };
+};

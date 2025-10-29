@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import api from "../../../utils/axios";
+import React from "react";
 import {
   CheckCircle,
   XCircle,
@@ -9,31 +8,15 @@ import {
   Calendar,
   Activity,
 } from "lucide-react";
+import { useToggleMitigation } from "../../../services/query/useMitigations";
 
 const MitigationCard = ({ mitigation, onStatusChange }) => {
-  const [isLoading, setIsLoading] = useState(false);
+  // 🚀 Hook de React Query para activar/desactivar mitigación
+  const mutation = useToggleMitigation(onStatusChange);
 
-  // 🔹 Función que hace POST a /activar o /desactivar según el estado actual
-  const handleApplyMitigation = async (id) => {
-    setIsLoading(true);
-    const action = mitigation.activo ? "desactivar" : "activar";
-
-    try {
-      // Petición POST con api
-      const response = await api.post(`/mitigaciones/${id}/${action}/`);
-
-      console.log(`✅ Mitigación ${action} - Respuesta:`, response.data);
-
-      // Actualizar estado en el componente padre si existe
-      if (onStatusChange) {
-        onStatusChange(id, action);
-      }
-    } catch (error) {
-      console.error(`❌ Error al ${action} mitigación:`, error);
-      alert(`Error al ${action} la mitigación: ${error.message}`);
-    } finally {
-      setIsLoading(false);
-    }
+  // 🔹 Nueva función que llama al hook en lugar de usar axios directamente
+  const handleApplyMitigation = (id) => {
+    mutation.mutate({ id, activo: mitigation.activo });
   };
 
   // 🔹 Badge del estado (activa o desactivada)
@@ -127,14 +110,14 @@ const MitigationCard = ({ mitigation, onStatusChange }) => {
       <div className="bg-slate-900/50 border-t border-slate-700/50 p-4">
         <button
           onClick={() => handleApplyMitigation(mitigation.id)}
-          disabled={isLoading}
+          disabled={mutation.isLoading} // ← reemplaza isLoading local
           className={`w-full bg-gradient-to-r ${
             mitigation.activo
               ? "from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700"
               : "from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700"
           } disabled:from-slate-700 disabled:to-slate-700 text-white font-semibold py-2.5 rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98] text-sm disabled:cursor-not-allowed`}
         >
-          {isLoading
+          {mutation.isLoading
             ? "Procesando..."
             : mitigation.activo
             ? "Desactivar Mitigación"
