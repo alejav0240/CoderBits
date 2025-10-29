@@ -5,20 +5,11 @@ import UserPagination from "./UserPagination";
 import StatsCards from "./StatsCards";
 import Filters from "./Filters";
 import {
-  Shield,
-  Users,
-  Search,
-  Filter,
-  Plus,
   Edit,
   Trash2,
-  UserCheck,
-  UserX,
   Mail,
   Phone,
   Calendar,
-  ChevronLeft,
-  ChevronRight,
   X,
 } from "lucide-react";
 
@@ -42,7 +33,9 @@ const UserList = () => {
     activo: true
   });
 
-  const users = data ?? [];
+  console.log("UserList data:", data);
+
+  const users = data?.results ?? [];
   console.log("Users array:", users);
   const pagination = data?.pagination;
   const totalItems = pagination?.totalItems ?? 0;

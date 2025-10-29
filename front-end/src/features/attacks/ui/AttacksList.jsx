@@ -83,7 +83,7 @@ const AttacksList = ({ range }) => {
   }
 
   // Si el backend devuelve algo como { attacks: [], total: ... }
-  const attacks = data || [];
+  const attacks = data.results || [];
   const total = data?.total || attacks.length;
 
   return (
@@ -158,13 +158,19 @@ const AttacksList = ({ range }) => {
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-slate-400">Puerto Destino:</span>
                     <span className="text-slate-300 font-mono">
-                      {attack.puerto_destino}
+                      {attack.puerto}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-slate-400">Conteo de conexiones:</span>
+                    <span className="text-slate-300 font-mono">
+                      {attack.conteo_conexiones ? attack.conteo_conexiones : 1}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-slate-400">Timestamp:</span>
                     <span className="text-slate-300 text-xs">
-                      {new Date(attack.timestamp).toLocaleString("es-ES")}
+                      {new Date(attack.fecha_detectado).toLocaleString("es-ES")}
                     </span>
                   </div>
                 </div>
@@ -172,7 +178,7 @@ const AttacksList = ({ range }) => {
                 {/* Footer */}
                 <div className="flex items-center justify-between pt-3 border-t border-slate-700/50">
                   <div className="flex items-center space-x-2">
-                    {attack.bloqueado ? (
+                    {attack.activo ? (
                       <>
                         <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                         <span className="text-xs text-green-400 font-medium">
@@ -198,7 +204,7 @@ const AttacksList = ({ range }) => {
         </div>
       ) : (
         <div className="text-center py-12">
-          <Shield className="w-16 h-16 text-green-600 mx-auto mb-4" />
+          <Shield className="w-16 h-16 text-red-600 mx-auto mb-4" />
           <h3 className="text-xl font-bold text-white mb-2">
             No se detectaron ataques
           </h3>
