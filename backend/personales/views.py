@@ -1,18 +1,24 @@
-from rest_framework import viewsets, status, serializers
+from rest_framework import viewsets, status, serializers, filters
 from rest_framework.response import Response
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import check_password
+from personales.pagination import CustomPagination
 from .models import Personal
 from .serializers import PersonalSerializer
 from drf_spectacular.utils import extend_schema
 from .models import BlacklistedToken
+from django_filters.rest_framework import DjangoFilterBackend
 
 class PersonalViewSet(viewsets.ModelViewSet):
-    queryset = Personal.objects.all()
+    queryset = Personal.objects.all().order_by('-fecha_registro')
     serializer_class = PersonalSerializer
+    pagination_class = CustomPagination
     permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ['activo', 'rol']
+    search_fields = ['nombre', 'apellido', 'correo']
 
     @action(detail=False, methods=["get"], url_path="activos")
     def listar_activos(self, request):
