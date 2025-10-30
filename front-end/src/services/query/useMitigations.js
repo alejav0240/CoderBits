@@ -3,7 +3,6 @@ import { getMitigaciones, toggleMitigation } from "../api/mitigationService.js";
 import { toast } from "react-toastify";
 
 export const useMitigaciones = (filters) => {
-  console.log("Cargando mitigaciones con filtros:", filters);
   return useQuery({
     queryKey: ["mitigaciones", filters],
     queryFn: () => getMitigaciones(filters),

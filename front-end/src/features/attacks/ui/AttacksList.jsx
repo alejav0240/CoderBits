@@ -106,7 +106,7 @@ const AttacksList = ({ range }) => {
             onChange={(e) => setSeverityFilter(e.target.value)}
             className="bg-slate-900/50 border border-slate-700 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
           >
-            <option value="all">Todas las severidades</option>
+            <option value="">Todas las severidades</option>
             <option value="critical">Crítico</option>
             <option value="high">Alto</option>
             <option value="medium">Medio</option>

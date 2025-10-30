@@ -15,10 +15,10 @@ export async function getUser(id) {
     }
 }
 
-export async function getUsers() {
+export async function getUsers(filters = {}) {
     try {
-        const response = await api.get(`personales/`);
-        console.log("Respuesta de getUsers:", response.data);
+        const params = new URLSearchParams(filters).toString();
+        const response = await api.get(`personales/?${params}`);
         return response.data;
     } catch (error) {
         console.error("Error en getUsers:", error);
@@ -46,7 +46,10 @@ export async function createUser(userData) {
 
 export async function updateUser(id, userData) {
     try {
-        const response = await api.put(`personales/${id}/`, userData);
+        // Omitir campos que no deben enviarse al backend: 'usuario' y 'correo'
+        const { usuario, correo, ...payload } = userData || {};
+        userData = payload;
+        const response = await api.patch(`personales/${id}/`, userData);
         return response.data;
     } catch (error) {
         console.error("Error en updateUser:", error);
@@ -60,7 +63,7 @@ export async function updateUser(id, userData) {
 
 export async function deleteUser(id) {
     try {
-        const response = await api.delete(`personales/${id}/restaurar/`);
+        const response = await api.delete(`personales/${id} /`);
         return response.data;
     } catch (error) {
         console.error("Error en deleteUser:", error);
