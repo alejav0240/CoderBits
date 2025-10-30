@@ -1,12 +1,12 @@
 import { isAxiosError } from "axios";
 import api from "../../utils/axios.js"; 
 
-export async function getDashboardSummary() {
+export async function getDashboardStats() {
     try {
-        const response = await api.get(`dashboard/summary/`);
+        const response = await api.get(`dashboard/stats/`);
         return response.data;
     } catch (error) {
-        console.error("Error en getDashboardSummary:", error);
+        console.error("Error en getDashboardStats:", error);
         if (isAxiosError(error) && error.response) {
             const message = (error.response.data)?.error || error.response.data?.detail;
             throw new Error(message || "Error al obtener el resumen del dashboard.");
