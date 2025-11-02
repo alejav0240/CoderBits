@@ -1,17 +1,23 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from mitigaciones.pagination import CustomPagination
 from .models import Mitigacion
 from .serializers import MitigacionSerializer
 import subprocess
 from django.utils import timezone
 from django.db.models import Q
 from rest_framework.permissions import IsAuthenticated
+from django_filters.rest_framework import DjangoFilterBackend
 
 class MitigacionViewSet(viewsets.ModelViewSet):
-    queryset = Mitigacion.objects.all() 
+    queryset = Mitigacion.objects.all().order_by('-fecha_mitigacion')
     serializer_class = MitigacionSerializer
+    pagination_class = CustomPagination
     permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ['activo', 'resultado']
+    search_fields = ['ip']
         
     @action(detail=True, methods=['post'], url_path='activar')
     def activar(self, request, pk=None):

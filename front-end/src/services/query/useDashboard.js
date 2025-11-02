@@ -1,14 +1,19 @@
-import { useQuery } from '@tanstack/react-query';
-import { getDashboardSummary, getAttackStats, getTrafficStats, getRecentEvents, getAnalytics } from '../api/dashboardService';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { getDashboardStats, getAttackStats, getTrafficStats, getRecentEvents, getAnalytics } from '../api/dashboardService';
 import { toast } from 'react-toastify';
 
-export function useDashboardSummary() {
-    return useQuery(['dashboardSummary'], getDashboardSummary, {
-        onError: (error) => {
-            toast.error(error.message);
-        },
-    });
-}
+export function useDashboardStats() {
+  return useQuery({
+    queryKey: ["dashboardStats"],
+    queryFn: () => getDashboardStats(),
+    onSuccess: (res) => {
+      toast.success(res.message || "Dashboard stats cargados correctamente");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Error al cargar dashboard stats");
+    },
+  });
+};
 
 export function useAttackStats(params) {
     return useQuery(['attackStats', params], () => getAttackStats(params), {

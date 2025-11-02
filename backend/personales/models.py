@@ -9,11 +9,18 @@ class Personal(models.Model):
     apellido = models.CharField(max_length=100)
     numero = models.DecimalField(max_digits=20, decimal_places=0)
     correo = models.EmailField()
-    usuario = models.CharField(max_length=50, unique=True)
+    usuario = models.CharField(max_length=50)
     contrasena = models.CharField(max_length=255)
     rol = models.ForeignKey(Rol, on_delete=models.RESTRICT, related_name="usuarios")
     activo = models.BooleanField(default=True)
     fecha_registro = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['usuario'], name='unique_usuario'),
+            models.UniqueConstraint(fields=['correo'], name='unique_correo'),
+        ]
+
     
     # Atributos para pasar los checks de Django
     USERNAME_FIELD = 'usuario'

@@ -12,12 +12,13 @@ import AttacksPage from './pages/AttacksPage';
 import TrafficPage from './pages/TrafficPage';
 import './App.css';
 import NotFoundPage from './pages/NotFoundPage';
-
+import { ToastContainer } from 'react-toastify';
 function App() {
   return (
     <Router>
       <AuthProvider>
         <div className="App">
+          <ToastContainer />
           {/*<Navbar />*/}
           <main className="main-content">
             <Routes>

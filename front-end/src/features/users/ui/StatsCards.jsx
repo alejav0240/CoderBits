@@ -2,27 +2,15 @@ import React, { useState } from "react";
 import {
   Shield,
   Users,
-  Search,
-  Filter,
-  Plus,
-  Edit,
-  Trash2,
   UserCheck,
-  UserX,
-  Mail,
-  Phone,
-  Calendar,
-  ChevronLeft,
-  ChevronRight,
-  X,
 } from "lucide-react";
 
 export default function StatsCards({ users }) {
   const stats = {
     total: users.length,
     active: users.filter((u) => u.activo).length,
-    admins: users.filter((u) => u.rol === "admin").length,
-    operators: users.filter((u) => u.rol === "operator").length,
+    admins: users.filter((u) => u.rol === 1).length,
+    operators: users.filter((u) => u.rol === 2).length,
   };
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
