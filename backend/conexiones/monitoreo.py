@@ -34,11 +34,17 @@ portscan_records = {}
 
 
 def trim_deque(dq, window_seconds):
+    """Elimina timestamps antiguos de un deque según la ventana de tiempo indicada."""
+    
     cutoff = time.time() - window_seconds
     while dq and dq[0] < cutoff:
         dq.popleft()
 
 def crear_evento_ataque(ip_origen, ip_destino, tipo, descripcion="Detectado por sniffer"):
+    """
+    Crea un registro de Ataque en la base de datos y envía alerta por WebSocket.
+    Ignora ataques desde la IP local.
+    """
     if ip_origen == IP_DISPOSITIVO_LOCAL:
         print(f"[monitoreo] Ataque desde IP local ignorado: {tipo} {ip_origen} -> {ip_destino}")
         return
@@ -60,6 +66,10 @@ def crear_evento_ataque(ip_origen, ip_destino, tipo, descripcion="Detectado por 
         print(f"[monitoreo] Error guardando Ataque: {e}")
 
 def evaluar_y_emitir(ip_origen, ip_destino):
+    """
+    Evalúa los registros de SYN, paquetes y escaneo de puertos
+    para detectar ataques tipo Neptune, DDoS o Satan y crea eventos si superan umbrales.
+    """
     if ip_origen == IP_DISPOSITIVO_LOCAL:
         return
     
@@ -90,12 +100,16 @@ def evaluar_y_emitir(ip_origen, ip_destino):
 
 
 def get_field(packet, layer, field):
+    """Obtiene un campo específico de un paquete, o '-' si no existe."""
+    
     if packet.haslayer(layer):
         return getattr(packet[layer], field, "-")
     return "-"
 
 
 def get_proto(packet):
+    """Devuelve el nombre del protocolo del paquete (TCP, UDP, IPv6, IP, ARP)."""
+    
     for layer in [TCP, UDP, IPv6, IP, ARP]:
         if packet.haslayer(layer):
             return layer.__name__
@@ -103,6 +117,12 @@ def get_proto(packet):
 
 
 def packet_callback(packet):
+    """
+    Función que se ejecuta por cada paquete capturado:
+    - Guarda la conexión en la base de datos
+    - Envía datos a WebSocket
+    - Registra ataques si se superan umbrales de SYN, DDoS o portscan
+    """
     if not monitor_activo_event.is_set():
         return
 
@@ -155,9 +175,11 @@ def packet_callback(packet):
 
     now = time.time()
 
+    # Registrar paquete para detección DDoS
     dq_pkt = pkt_records.setdefault(ip_origen, collections.deque())
     dq_pkt.append(now)
 
+    # Registrar SYN para detección Neptune
     if packet.haslayer(TCP):
         try:
             flags = int(packet[TCP].flags)
@@ -167,6 +189,7 @@ def packet_callback(packet):
         except Exception:
             pass
 
+    # Registrar puertos para detección Satan (portscan)
     try:
         if puerto_destino not in [None, "-", ""]:
             ports = portscan_records.setdefault(ip_origen, {})
@@ -177,6 +200,10 @@ def packet_callback(packet):
     evaluar_y_emitir(ip_origen, ip_destino)
 
 def start_sniffer():
+    """
+    Inicia el sniffer de red en un hilo independiente.
+    Si ya se inició, solo activa el monitoreo.
+    """
     global sniffer_iniciado
     if sniffer_iniciado:
         monitor_activo_event.set()
@@ -204,6 +231,8 @@ def stop_sniffer():
     print("[monitoreo] Monitoreo pausado")
 
 def obtener_ip_local():
+    """Obtiene la IP local de la máquina para excluirla de la detección de ataques."""
+
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         s.connect(("8.8.8.8", 80))
@@ -214,4 +243,5 @@ def obtener_ip_local():
         s.close()
     return ip
 
+# IP del dispositivo local para ignorar ataques internos
 IP_DISPOSITIVO_LOCAL = obtener_ip_local()

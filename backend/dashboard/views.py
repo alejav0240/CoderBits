@@ -10,7 +10,12 @@ from rest_framework import serializers, status
 from drf_spectacular.utils import extend_schema
 from rest_framework.response import Response as DRFResponse
 
+# ==============================
+# SERIALIZERS
+# ==============================
+
 class DashboardStatsSerializer(serializers.Serializer):
+    """Serializer que define la estructura de estadísticas generales para el dashboard"""
     ataques_activos = serializers.IntegerField()
     ataques_hoy = serializers.IntegerField()
     conexiones_hoy = serializers.IntegerField()
@@ -19,16 +24,24 @@ class DashboardStatsSerializer(serializers.Serializer):
 
 
 class ExportJsonSerializer(serializers.Serializer):
+    """Serializer para exportar datos de ataques y mitigaciones en JSON"""
     ataques = serializers.ListField(child=serializers.DictField())
     mitigaciones = serializers.ListField(child=serializers.DictField())
 
+
+# ==============================
+# VISTAS
+# ==============================
 
 @extend_schema(
     responses=DashboardStatsSerializer,
     description="Obtiene estadísticas generales del sistema: ataques activos, ataques del día, conexiones del día, mitigaciones exitosas, etc."
 )
 class DashboardStatsView(APIView):
+    """Devuelve estadísticas generales del sistema para mostrar en el dashboard"""
+    
     def get(self, request):
+        """GET: Recupera los contadores de ataques, conexiones y mitigaciones"""
         try:
             hoy = timezone.now().date()
             hace_30_dias = hoy - timedelta(days=30)
@@ -50,7 +63,10 @@ class DashboardStatsView(APIView):
     description="Exporta los ataques y mitigaciones detectados en la fecha actual en formato JSON."
 )
 class ExportJsonView(APIView):
+    """Exporta los registros de ataques y mitigaciones de hoy en formato JSON"""
+
     def get(self, request):
+        """GET: Recupera ataques y mitigaciones de la fecha actual y los devuelve en JSON"""
         try:
             hoy = timezone.now().date()
 
@@ -73,8 +89,10 @@ class ExportJsonView(APIView):
 
 
 class AnalyticsView(APIView):
-    """Devuelve datos de ejemplo para el dashboard (hourly, byType, bySeverity)."""
+    """Devuelve datos de ejemplo para el dashboard (hourly, byType, bySeverity)"""
+    
     def get(self, request):
+        """GET: Retorna datos de analítica simulados para gráficos en el dashboard"""
         try:
             data = {
                 "hourly": [

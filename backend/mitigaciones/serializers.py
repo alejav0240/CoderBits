@@ -2,9 +2,16 @@ from rest_framework import serializers
 from .models import Mitigacion
 import subprocess
 
+
 class MitigacionSerializer(serializers.ModelSerializer):
-    nombre_ataque = serializers.CharField(source='ataque.tipo', read_only=True)
-    ejecutado_por_nombre = serializers.CharField(source='ejecutado_por.nombre', read_only=True)
+    """
+    Serializer para el modelo Mitigacion.
+    Permite convertir los datos de Mitigacion a JSON y también
+    ejecutar métodos para bloquear/desbloquear IPs manualmente.
+    """
+    nombre_ataque = serializers.CharField(source='ataque.tipo', read_only=True)          # Nombre del tipo de ataque
+    ejecutado_por_nombre = serializers.CharField(source='ejecutado_por.nombre', read_only=True)  # Nombre del personal que ejecutó la mitigación
+
     class Meta:
         model = Mitigacion
         fields = [
@@ -21,6 +28,10 @@ class MitigacionSerializer(serializers.ModelSerializer):
         ]
 
     def bloquear_ip(self):
+        """
+        Bloquea la IP de la mitigación usando NETSH en Windows.
+        Actualiza el estado y resultado de la mitigación en la base de datos.
+        """
         ip = self.ataque.ip_origen
         if not ip:
             self.resultado = "Sin IP para bloquear."
@@ -40,6 +51,10 @@ class MitigacionSerializer(serializers.ModelSerializer):
         self.save()
 
     def desbloquear_ip(self):
+        """
+        Desbloquea la IP de la mitigación usando NETSH en Windows.
+        Actualiza el estado y resultado de la mitigación en la base de datos.
+        """
         ip = self.ataque.ip_origen
         if not ip:
             self.resultado = "Sin IP para desbloquear."
@@ -56,4 +71,3 @@ class MitigacionSerializer(serializers.ModelSerializer):
         except Exception as e:
             self.resultado = f"Error al desbloquear IP: {e}"
         self.save()
-

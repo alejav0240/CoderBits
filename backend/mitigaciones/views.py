@@ -29,7 +29,8 @@ class MitigacionViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='activar')
     def activar(self, request, pk=None):
         """
-        Activa una mitigación pendiente (activo=False) bloqueando la IP con NETSH (Windows).
+        Activa una mitigación específica manualmente.
+        Bloquea la IP asociada usando NETSH en Windows.
         """
         try:
             mitigacion = self.get_queryset().get(pk=pk, activo=False)
@@ -76,6 +77,10 @@ class MitigacionViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'], url_path='desactivar')
     def desactivar(self, request, pk=None):
+        """
+        Desactiva una mitigación específica manualmente.
+        Elimina el bloqueo de la IP en Windows Firewall.
+        """
         try:
             mitigacion = self.get_queryset().get(pk=pk, activo=True)
             
@@ -117,7 +122,8 @@ class MitigacionViewSet(viewsets.ModelViewSet):
 
     def _activar_mitigacion_automatica(self, mitigacion_id):
         """
-        Activa una mitigación específica (lógica interna).
+        Activa internamente una mitigación (usada por el proceso automático).
+        Retorna True si la activación fue exitosa, False si hubo error.
         """
         try:
             mitigacion = Mitigacion.objects.get(pk=mitigacion_id, activo=False)
@@ -148,7 +154,9 @@ class MitigacionViewSet(viewsets.ModelViewSet):
 
     def _proceso_activacion_automatica(self):
         """
-        Proceso que se ejecuta continuamente activando mitigaciones pendientes.
+        Proceso que corre en segundo plano activando automáticamente
+        todas las mitigaciones pendientes de forma continua.
+        Se detiene solo cuando _auto_activacion_activa es False.
         """
         print("Iniciando proceso de activación automática de mitigaciones...")
         
@@ -176,7 +184,8 @@ class MitigacionViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['post'], url_path='iniciar_automatico')
     def iniciar_automatico(self, request):
         """
-        Inicia el proceso de activación automática continua de mitigaciones.
+        Inicia el proceso de activación automática de mitigaciones
+        en un hilo independiente.
         """
         with MitigacionViewSet._lock:
             if MitigacionViewSet._auto_activacion_activa:
