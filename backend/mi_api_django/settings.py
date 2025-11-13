@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'dashboard',
     'channels',
     'rest_framework_simplejwt.token_blacklist',
+    
 ]
 
 MIDDLEWARE = [

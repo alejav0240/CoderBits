@@ -9,12 +9,22 @@ import traceback
 from typing import Optional
 import asyncio
 import sys
+import os
 
 # =====================
 # CONFIGURACIÓN
 # =====================
 INTERFACE = "Ethernet"
 ROOT_PATH = "C:\\Users\\kiro\\CoderBits\\ML-Analisis\\"
+ROOT_PROJECT = "C:\\Users\\kiro\\CoderBits\\"
+if ROOT_PROJECT not in sys.path:
+    sys.path.insert(0, ROOT_PROJECT)
+
+# Configurar Django
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
+
+import django
+django.setup()
 
 MODEL_PATH = ROOT_PATH + "cic_ids2017_nn_model.h5"
 SCALER_PATH = ROOT_PATH + "scaler_cic_ids2017.pkl"
@@ -284,10 +294,10 @@ def is_monitoring() -> bool:
 
 
 from django.db import close_old_connections
-from backend.ataques.models import Ataque
-from backend.ataques.utils import enviar_alerta_ws
+from ataques.models import Ataque
+from ataques.utils import enviar_alerta_ws
 from django.utils import timezone
-from backend.conexiones.monitoreo import IP_DISPOSITIVO_LOCAL
+from conexiones.monitoreo import IP_DISPOSITIVO_LOCAL
 
 def registrar_ataque(flow: Flow, clase: str, prob: float):
     """
