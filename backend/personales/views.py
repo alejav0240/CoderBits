@@ -11,6 +11,9 @@ from drf_spectacular.utils import extend_schema
 from .models import BlacklistedToken
 from django_filters.rest_framework import DjangoFilterBackend
 
+# ==============================
+# VIEWSET PARA GESTIÓN DE PERSONAL
+# ==============================
 class PersonalViewSet(viewsets.ModelViewSet):
     queryset = Personal.objects.all().order_by('-fecha_registro')
     serializer_class = PersonalSerializer
@@ -22,18 +25,21 @@ class PersonalViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["get"], url_path="activos")
     def listar_activos(self, request):
+        """Devuelve la lista de usuarios activos"""
         queryset = Personal.objects.filter(activo=True)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=["get"], url_path="inactivos")
     def listar_inactivos(self, request):
+        """Devuelve la lista de usuarios inactivos"""
         queryset = Personal.objects.filter(activo=False)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
     @action(detail=True, methods=["post"], url_path="restaurar")
     def restaurar(self, request, pk=None):
+        """Restaura un usuario inactivo a activo"""
         try:
             personal = Personal.objects.get(pk=pk, activo=False)
             personal.activo = True
@@ -44,6 +50,7 @@ class PersonalViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["get"], url_path="activo")
     def obtener_activo(self, request, pk=None):
+        """Obtiene información de un usuario específico si está activo"""
         try:
             personal = Personal.objects.get(pk=pk, activo=True)
         except Personal.DoesNotExist:
@@ -53,6 +60,7 @@ class PersonalViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["get"], url_path="inactivo")
     def obtener_inactivo(self, request, pk=None):
+        """Obtiene información de un usuario específico si está inactivo"""
         try:
             personal = Personal.objects.get(pk=pk, activo=False)
         except Personal.DoesNotExist:
@@ -62,6 +70,7 @@ class PersonalViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['post'], url_path='eliminar')
     def eliminar_usuario(self, request, pk=None):
+        """Desactiva un usuario activo (equivalente a eliminarlo)"""
         try:
             personal = Personal.objects.get(pk=pk, activo=True)
             personal.activo = False
@@ -70,11 +79,16 @@ class PersonalViewSet(viewsets.ModelViewSet):
         except Personal.DoesNotExist:
             return Response({"message": "Usuario no encontrado o ya está inactivo."}, status=status.HTTP_404_NOT_FOUND)
 
+# ==============================
+# SERIALIZERS LOGIN
+# ==============================
 class LoginRequestSerializer(serializers.Serializer):
+    """Serializer para login: recibe usuario y contraseña"""
     usuario = serializers.CharField()
     contrasena = serializers.CharField()
 
 class LoginResponseSerializer(serializers.Serializer):
+    """Serializer de respuesta de login, incluye tokens y datos básicos del usuario"""
     refresh = serializers.CharField()
     access = serializers.CharField()
     usuario = serializers.CharField()
@@ -82,9 +96,8 @@ class LoginResponseSerializer(serializers.Serializer):
     message = serializers.CharField()
 
 # ==============================
-# VISTA LOGIN
+# LOGIN PERSONAL
 # ==============================
-
 @extend_schema(
     request=LoginRequestSerializer,
     responses={200: LoginResponseSerializer},
@@ -93,6 +106,10 @@ class LoginResponseSerializer(serializers.Serializer):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_personal(request):
+    """
+    Autentica al usuario y devuelve tokens JWT (refresh y access) junto con información básica del personal.
+    Valida usuario, contraseña y estado activo.
+    """
     usuario = request.data.get('usuario')
     contrasena = request.data.get('contrasena')
 
@@ -120,9 +137,17 @@ def login_personal(request):
         'message': 'Inicio de sesión exitoso'
     }, status=status.HTTP_200_OK)
 
+# ==============================
+# LOGOUT PERSONAL
+# ==============================
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout_personal(request):
+    """
+    Revoca los tokens JWT del usuario:
+    - Coloca el refresh token en la blacklist de JWT.
+    - Guarda el access token en la tabla BlacklistedToken.
+    """
     try:
         refresh_token = request.data.get("refresh")
         access_token = request.data.get("access")

@@ -3,17 +3,32 @@ from django.dispatch import receiver
 from .models import Ataque
 from mitigaciones.models import Mitigacion
 
+# -----------------------------
+# Signal receiver: se ejecuta después de guardar un Ataque
+# -----------------------------
 @receiver(post_save, sender=Ataque)
 def crear_mitigacion(sender, instance, created, **kwargs):
+    """
+    Crea automáticamente un registro de Mitigación cuando se detecta un nuevo Ataque.
+    
+    Parámetros:
+    - sender: modelo que envía la señal (Ataque)
+    - instance: instancia del Ataque que se acaba de guardar
+    - created: booleano que indica si la instancia fue recién creada
+    """
+
+    # Si el Ataque ya existía, no hacemos nada
     if not created:
         return  
 
-    tipo = instance.tipo.lower()
-    ip = instance.ip_origen or "desconocida"
-    detalle = ""
-    resultado = "Mitigación pendiente de activación manual"
-    activo = False 
+    # Datos básicos de la mitigación
+    tipo = instance.tipo.lower()            # Tipo de ataque en minúsculas
+    ip = instance.ip_origen or "desconocida"  # IP origen del ataque
+    detalle = ""                             # Descripción detallada
+    resultado = "Mitigación pendiente de activación manual"  # Estado inicial
+    activo = False                           # Mitigación inicialmente inactiva
 
+    # Generar detalle según el tipo de ataque
     if tipo in ["neptune", "ddos"]:
         detalle = f"Bloqueo recomendado por ataque tipo {tipo.upper()}"
     elif tipo == "satan":
@@ -21,6 +36,7 @@ def crear_mitigacion(sender, instance, created, **kwargs):
     else:
         detalle = f"Ataque desconocido detectado ({tipo})"
 
+    # Crear registro de Mitigación en la base de datos
     Mitigacion.objects.create(
         ataque=instance,
         ip=ip,
