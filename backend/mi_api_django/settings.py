@@ -14,11 +14,26 @@ from pathlib import Path
 from decouple import config
 from datetime import timedelta
 import os
+import sys
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# ============================================================================
+# EXTERNAL PATHS CONFIGURATION
+# ============================================================================
+# Agregar rutas externas para módulos fuera del proyecto Django
+EXTERNAL_PATHS = [
+    r"C:\\Users\\kiro\\CoderBits\\ML-Analisis",
+]
 
+for path in EXTERNAL_PATHS:
+    if path not in sys.path:
+        sys.path.append(path)
+
+# ============================================================================
+# SECURITY SETTINGS
+# ============================================================================
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
@@ -52,7 +67,6 @@ INSTALLED_APPS = [
     'dashboard',
     'channels',
     'rest_framework_simplejwt.token_blacklist',
-
 ]
 
 MIDDLEWARE = [
@@ -73,7 +87,6 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    "http://localhost:5173"
 ]
 
 ROOT_URLCONF = 'mi_api_django.urls'

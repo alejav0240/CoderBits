@@ -2,34 +2,52 @@ import pyshark
 import tensorflow as tf
 import joblib
 import numpy as np
-from datetime import datetime
 from collections import defaultdict
 import time
-import signal
+import threading
+import traceback
+from typing import Optional
+import asyncio
 import sys
 
 # =====================
 # CONFIGURACIÓN
 # =====================
-INTERFACE = "Wi-Fi"  # Cambia según tu sistema: "Ethernet", "wlan0", etc.
-ROOT_PATH = "C:\\Proyectos\\CoderBits\\ML-Analisis\\"
+INTERFACE = "Ethernet"
+ROOT_PATH = "C:\\Users\\kiro\\CoderBits\\ML-Analisis\\"
+
 MODEL_PATH = ROOT_PATH + "cic_ids2017_nn_model.h5"
 SCALER_PATH = ROOT_PATH + "scaler_cic_ids2017.pkl"
 ENCODER_PATH = ROOT_PATH + "label_encoder.pkl"
-FLOW_TIMEOUT = 10  # segundos de inactividad para cerrar un flujo
 
 # =====================
-# CARGA DE MODELO Y OBJETOS
+# VARIABLES GLOBALES
 # =====================
-print("🔹 Cargando modelo y objetos...")
-model = tf.keras.models.load_model(MODEL_PATH)
-scaler = joblib.load(SCALER_PATH)
-le = joblib.load(ENCODER_PATH)
-CLASS_NAMES = le.classes_
-print(f"✅ Modelo cargado. Clases detectadas: {list(CLASS_NAMES)}")
+model = None
+scaler = None
+le = None
+CLASS_NAMES = None
+
+_capture: Optional[pyshark.LiveCapture] = None
+_sniffer_thread: Optional[threading.Thread] = None
+_stop_event = threading.Event()
+_interface = INTERFACE
 
 # =====================
-# ESTRUCTURA DE FLUJOS
+# CARGA DE MODELO (LAZY)
+# =====================
+def cargar_modelo():
+    global model, scaler, le, CLASS_NAMES
+    if model is None:
+        print("🔹 Cargando modelo y objetos...")
+        model = tf.keras.models.load_model(MODEL_PATH)
+        scaler = joblib.load(SCALER_PATH)
+        le = joblib.load(ENCODER_PATH)
+        CLASS_NAMES = le.classes_
+        print(f"✅ Modelo cargado. Clases: {list(CLASS_NAMES)}")
+
+# =====================
+# CLASE FLOW
 # =====================
 class Flow:
     def __init__(self, src_ip, dst_ip, src_port, dst_port, protocol):
@@ -39,24 +57,21 @@ class Flow:
         self.dst_port = dst_port
         self.protocol = protocol
         self.start_time = time.time()
-        self.last_time = None
+        self.last_time = self.start_time
         self.fwd_pkts = []
         self.bwd_pkts = []
         self.flags = defaultdict(int)
 
     def add_packet(self, pkt, direction):
-        #print(f"Analizando paquete desde add_packet de {pkt}...")
         now = float(pkt.sniff_timestamp)
-        print(f"Timestamp del paquete: -----------------------------{now}")
         length = int(pkt.length)
-        print(f"Actualizando last_time de {self.last_time} a {now}...")
         self.last_time = now
+
         if direction == "fwd":
             self.fwd_pkts.append((now, length))
         else:
             self.bwd_pkts.append((now, length))
 
-        # Contar flags TCP si existen
         if hasattr(pkt, "tcp"):
             for flag in ["fin", "syn", "rst", "psh", "ack", "urg", "cwr", "ece"]:
                 val = getattr(pkt.tcp, flag, None)
@@ -66,12 +81,7 @@ class Flow:
     def duration(self):
         return self.last_time - self.start_time
 
-    def set_last_time(self):
-        print(f"Actualizando last_time de {self.last_time} a {time.time()}...")
-        self.last_time = time.time()
-
     def feature_vector(self):
-        """Calcula las 52 features esperadas por el modelo"""
         try:
             def safe_stat(lst, func, default=0):
                 return func(lst) if lst else default
@@ -133,25 +143,24 @@ class Flow:
                 flow_iat_mean, flow_iat_std, flow_iat_max, flow_iat_min,
                 fwd_iat_total, fwd_iat_mean, fwd_iat_std, fwd_iat_max, fwd_iat_min,
                 bwd_iat_total, bwd_iat_mean, bwd_iat_std, bwd_iat_max, bwd_iat_min,
-                0, 0,  # Fwd/Bwd Header Length (no disponible)
+                0, 0,
                 pkt_len_min, pkt_len_max, pkt_len_mean, pkt_len_std, pkt_len_var,
                 fin, syn, rst, psh, ack, urg, cwe, ece,
                 avg_pkt_size, safe_stat(fwd_lengths, np.mean), safe_stat(bwd_lengths, np.mean),
-                0, 0, total_fwd, 0  # placeholders para mantener 52 features
+                0, 0, total_fwd, 0
             ]
             return np.array(features).reshape(1, -1)
         except Exception as e:
             print(f"⚠️ Error calculando features: {e}")
             return None
 
-
 # =====================
-# FUNCIÓN DE PREDICCIÓN
+# PREDICCIÓN
 # =====================
 def predecir(features):
     try:
         scaled = scaler.transform(features)
-        y_pred = model.predict(scaled)
+        y_pred = model.predict(scaled, verbose=0)
         clase = CLASS_NAMES[np.argmax(y_pred)]
         prob = np.max(y_pred)
         return clase, prob
@@ -159,80 +168,152 @@ def predecir(features):
         print(f"⚠️ Error en predicción: {e}")
         return "ERROR", 0
 
-
 # =====================
-# MONITOREO PRINCIPAL
+# FUNCIONES PARA DJANGO
 # =====================
-flows = {}
-print(f"\n🚀 Iniciando monitoreo en interfaz {INTERFACE} (Ctrl+C para detener)\n")
-capture = pyshark.LiveCapture(interface=INTERFACE)
-
-def salir(sig, frame):
-    print("\n🛑 Monitoreo detenido por el usuario.")
-    sys.exit(0)
-
-signal.signal(signal.SIGINT, salir)
-
-for pkt in capture.sniff_continuously():
+def _process_packet(packet):
     try:
-        if not hasattr(pkt, "ip") or not hasattr(pkt, "transport_layer"):
-            continue
+        summary = getattr(packet, 'highest_layer', 'NO_LAYER')
+        print(f"Paquete: {summary} - time: {getattr(packet, 'sniff_time', '')}")
 
-        src_ip = pkt.ip.src
-        #print(f"Analizando paquete de {src_ip}...")
-        dst_ip = pkt.ip.dst
-        #print(f"Analizando paquete a {dst_ip}...")
-        src_port = pkt[pkt.transport_layer].srcport
-        #print(f"Puerto origen: {src_port}")
-        dst_port = pkt[pkt.transport_layer].dstport
-        #print(f"Puerto destino: {dst_port}")
-        protocol = pkt.transport_layer
-        #print(f"Protocolo: {protocol}")
+        # Extraer datos del paquete y crear un Flow simple
+        src_ip = getattr(packet.ip, 'src', None)
+        dst_ip = getattr(packet.ip, 'dst', None)
+        src_port = getattr(packet[packet.transport_layer], 'srcport', 0) if hasattr(packet, 'transport_layer') else 0
+        dst_port = getattr(packet[packet.transport_layer], 'dstport', 0) if hasattr(packet, 'transport_layer') else 0
+        proto = packet.transport_layer if hasattr(packet, 'transport_layer') else "NA"
 
-        key_fwd = (src_ip, dst_ip, src_port, dst_port, protocol)
-        #print(f"Clave flujo forward: {key_fwd}")
-        key_bwd = (dst_ip, src_ip, dst_port, src_port, protocol)
-        #print(f"Clave flujo backward: {key_bwd}")
+        flow = Flow(src_ip, dst_ip, src_port, dst_port, proto)
+        flow.add_packet(packet, "fwd")
 
-        if key_fwd in flows:
-            direction = "fwd"
-            flow = flows[key_fwd]
-            flow.set_last_time()
-            #print("Flujo existente en dirección forward.")
-        elif key_bwd in flows:
-            direction = "bwd"
-            flow = flows[key_bwd]
-            flow.set_last_time()
-            #print("Flujo existente en dirección backward.")
-        else:
-            flow = Flow(src_ip, dst_ip, src_port, dst_port, protocol)
-            #print("***********************************************************************************************************************************Creando nuevo flujo...")
-            #print(f"flow: {vars(flow)}")
-            flows[key_fwd] = flow
-            direction = "fwd"
-            print("Nuevo flujo creado.")
+        # Calcular features y predecir
+        features = flow.feature_vector()
+        if features is not None:
+            clase, prob = predecir(features)
+            if clase != "BENIGN":  # solo guardar si es ataque
+                registrar_ataque(flow, clase, prob)
 
-        flow.add_packet(pkt, direction)
-        #print(f"Paquete añadido al flujo en dirección {direction}.")
+    except Exception:
+        print("⚠️ Error al procesar paquete:")
+        traceback.print_exc()
 
-        # Si el flujo está inactivo, procesar
-        #print("Verificando inactividad del time.time()... ------------------------------------------------------------",time.time())
-        #print("Verificando inactividad del FLOW_TIMEOUT... -------------------------------------------------------------", FLOW_TIMEOUT)
-        #print("Verificando inactividad del flow.last_time... -------------------------------------------------------------",flow.last_time)
-        #print("Verificando inactividad del flow.start_time... -------------------------------------------------------------",flow.start_time)
-        #print("Verificando inactividad del time.time() - flow.last_time... -------------------------------------------------------------",time.time() - flow.last_time)
-        #print("Verificando inactividad del time.time() - flow.start_time... -------------------------------------------------------------",time.time() - flow.start_time)
-        print("Verificando inactividad del time.time() - flow.last_time > FLOW_TIMEOU... ------------------------------------------------------------",time.time() - flow.start_time > FLOW_TIMEOUT)
-        if time.time() - flow.start_time > FLOW_TIMEOUT:
-            print(f"-----------------------------------------------------------------------------Flujo inactivo detectado: {flow.src_ip} ➜ {flow.dst_ip}")
-            features = flow.feature_vector()
-            print(f"Vector de características calculado: {features}")
-            if features is not None:
-                print("------------------------------------------------------------------------------------------------------------------------------Realizando predicción...")
-                clase, prob = predecir(features)
-                print(f"---------------------------------------------------------------------------------------Predicción realizada: {clase} con probabilidad {prob:.2f}")
-                if clase != "BENIGN":
-                    print(f"🚨 [{datetime.now().strftime('%H:%M:%S')}] {flow.src_ip} ➜ {flow.dst_ip}  [{clase}] ({prob:.2f})")
-            del flows[key_fwd]
+
+def _sniff_loop(capture: pyshark.LiveCapture):
+    try:
+        for packet in capture.sniff_continuously():
+            if _stop_event.is_set():
+                break
+            _process_packet(packet)
     except Exception as e:
-        print(f"⚠️ Error procesando paquete: {e}")
+        print("⚠️ Error en sniff loop:", e)
+        traceback.print_exc()
+    finally:
+        try:
+            capture.close()
+        except Exception:
+            pass
+        print("Sniffer: loop finalizado")
+
+# =====================
+# HILO DEL SNIFFER
+# =====================
+def _sniffer_target():
+    global _capture
+    try:
+        cargar_modelo()
+        print(f"🚀 Iniciando monitoreo en interfaz {_interface}")
+
+        # --- FIX Windows: crear event loop explícito ---
+        if sys.platform.startswith("win"):
+            loop = asyncio.ProactorEventLoop()  # necesario para subprocess
+            asyncio.set_event_loop(loop)
+        else:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+
+        _capture = pyshark.LiveCapture(interface=_interface, eventloop=loop)
+
+        _sniff_loop(_capture)
+
+    except Exception as e:
+        print("⚠️ Error en sniffer thread:", e)
+        traceback.print_exc()
+    finally:
+        print("🔚 Sniffer detenido")
+
+# =====================
+# START / STOP
+# =====================
+def start_sniffer(interface: str = INTERFACE):
+    global _sniffer_thread, _stop_event, _interface
+    if is_monitoring():
+        print("El monitoreo ya está activo")
+        return
+
+    _stop_event.clear()
+    _interface = interface
+
+    _sniffer_thread = threading.Thread(target=_sniffer_target, daemon=True)
+    _sniffer_thread.start()
+    print(f"✅ Sniffer iniciado en hilo para interfaz {_interface}")
+
+def stop_sniffer():
+    global _capture, _sniffer_thread, _stop_event
+    if not is_monitoring():
+        print("El sniffer no estaba activo")
+        return
+
+    print("🛑 Deteniendo sniffer...")
+    _stop_event.set()
+    try:
+        if _capture:
+            _capture.close()
+    except Exception as e:
+        print(f"⚠️ Error cerrando capture: {e}")
+
+    if _sniffer_thread:
+        _sniffer_thread.join(timeout=5)
+
+    _capture = None
+    _sniffer_thread = None
+    _stop_event.clear()
+    print("✅ Sniffer detenido")
+
+def is_monitoring() -> bool:
+    return _sniffer_thread is not None and _sniffer_thread.is_alive()
+
+
+from django.db import close_old_connections
+from backend.ataques.models import Ataque
+from backend.ataques.utils import enviar_alerta_ws
+from django.utils import timezone
+from backend.conexiones.monitoreo import IP_DISPOSITIVO_LOCAL
+
+def registrar_ataque(flow: Flow, clase: str, prob: float):
+    """
+    Crea un Ataque en la DB y envía alerta si el flujo es malicioso.
+    """
+    ip_origen = flow.src_ip
+    ip_destino = flow.dst_ip
+
+    # Ignorar ataques desde la IP local
+    if ip_origen == IP_DISPOSITIVO_LOCAL:
+        return
+
+    try:
+        close_old_connections()
+        ataque = Ataque.objects.create(
+            ip_origen=ip_origen,
+            ip_destino=ip_destino,
+            tipo=clase,
+            descripcion=f"Predicción ML: {clase} ({prob:.2f})",
+            puerto=flow.dst_port,
+            hora=timezone.now()
+        )
+        print(f"[monitoreo] Ataque registrado: {clase} {ip_origen} -> {ip_destino} prob={prob:.2f}")
+
+        # Enviar alerta por WebSocket
+        enviar_alerta_ws(ataque)
+
+    except Exception as e:
+        print(f"[monitoreo] Error guardando Ataque: {e}")

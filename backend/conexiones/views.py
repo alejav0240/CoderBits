@@ -1,35 +1,50 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+
 from .models import Conexion 
 from .serializers import ConexionSerializer
-from .monitoreo import start_sniffer, monitor_activo_event
-from rest_framework.permissions import IsAuthenticated
+from monitor_trafico import start_sniffer, stop_sniffer, is_monitoring
 
 
 class ConexionViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet para gestionar las conexiones capturadas en la red.
-    Permite listar, crear y ver conexiones, además de activar/desactivar el monitoreo.
-    """
-    queryset = Conexion.objects.all()           # Todos los registros de conexiones
-    serializer_class = ConexionSerializer       # Serializador para convertir a JSON
-    permission_classes = [IsAuthenticated]     # Solo usuarios autenticados pueden usarlo
+    queryset = Conexion.objects.all()
+    serializer_class = ConexionSerializer
+    permission_classes = [IsAuthenticated]
 
     @action(detail=False, methods=['post'])
     def activar_monitoreo(self, request):
-        """
-        Acción personalizada (POST /conexiones/activar_monitoreo/)
-        Inicia el sniffer de red en un hilo independiente si no estaba activo.
-        """
-        start_sniffer()  
-        return Response({"message": "Monitoreo activado"}, status=status.HTTP_200_OK)
+        if is_monitoring():
+            return Response(
+                {"message": "El monitoreo ya está activo"}, 
+                status=status.HTTP_200_OK
+            )
+        
+        start_sniffer()
+        return Response(
+            {"message": "Monitoreo activado correctamente"}, 
+            status=status.HTTP_200_OK
+        )
 
     @action(detail=False, methods=['post'])
     def desactivar_monitoreo(self, request):
-        """
-        Acción personalizada (POST /conexiones/desactivar_monitoreo/)
-        Pausa temporalmente el monitoreo sin detener el hilo del sniffer.
-        """
-        monitor_activo_event.clear()
-        return Response({"message": "Monitoreo desactivado"}, status=status.HTTP_200_OK)
+        if not is_monitoring():
+            return Response(
+                {"message": "El monitoreo no está activo"}, 
+                status=status.HTTP_200_OK
+            )
+        
+        stop_sniffer()
+        return Response(
+            {"message": "Monitoreo desactivado correctamente"}, 
+            status=status.HTTP_200_OK
+        )
+
+    @action(detail=False, methods=['get'])
+    def estado_monitoreo(self, request):
+        estado = "activo" if is_monitoring() else "inactivo"
+        return Response(
+            {"estado": estado, "monitoreo_activo": is_monitoring()}, 
+            status=status.HTTP_200_OK
+        )
