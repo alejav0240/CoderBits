@@ -230,6 +230,8 @@ Funcionalidades:
 * `GET /api/conexiones/<id>/`
 * `POST /api/conexiones/activar_monitoreo/`
 * `POST /api/conexiones/desactivar_monitoreo/`
+* `POST api/conexiones/iniciar_automatico/`
+* `POST api/conexiones/detener_automatico/`
 
 ### Personal / Roles
 
