@@ -1,31 +1,166 @@
-# CoderBits — Captura de Red y Monitoreo (IDS con ML)
+# Sistema de Monitoreo de Red con Machine Learning 🛡️
 
-**Descripción corta**
-Proyecto para captura y monitoreo de tráfico de red basado en Django (API + WebSocket), con un módulo de detección basado en Machine Learning entrenado sobre CIC-IDS2017. Incluye frontend en React (Vite) y app móvil en React Native para visualización y control.
+![Python](https://img.shields.io/badge/Python-3.9%2B-blue?style=for-the-badge&logo=python) ![Django](https://img.shields.io/badge/Django-3.x%2F4.x-092E20?style=for-the-badge&logo=django) ![React](https://img.shields.io/badge/React-18.x-61DAFB?style=for-the-badge&logo=react) ![React Native](https://img.shields.io/badge/React_Native-0.70.x-61DAFB?style=for-the-badge&logo=react-native)
+![Machine Learning](https://img.shields.io/badge/Machine_Learning-TensorFlow%2FKeras-FF6F00?style=for-the-badge&logo=tensorflow) ![WebSockets](https://img.shields.io/badge/WebSockets-Daphne%2FChannels-E2A90C?style=for-the-badge&logo=websocket) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14%2B-316192?style=for-the-badge&logo=postgresql)
 
----
+Este proyecto es un sistema integral de monitoreo de tráfico de red con capacidades avanzadas de detección de intrusiones y anomalías, potenciado por Machine Learning. Ofrece una plataforma robusta para la vigilancia de la red, la identificación proactiva de amenazas cibernéticas y la gestión de mitigaciones, todo accesible a través de interfaces web y móviles intuitivas.
 
-## 🔎 Resumen de componentes
+## ✨ Características Principales
 
-* **Backend**: Django REST API + WebSockets (Daphne / Channels). Gestiona captura, almacenamiento, alertas y mitigaciones.
-* **Machine Learning**: Modelo entrenado (Keras/TensorFlow) con features del dataset **CIC-IDS2017**. Inferencia en tiempo real desde un sniffer (Scapy) que envía resultados al backend.
-* **Frontend**: React + Vite para panel de control, administración y visualización en tiempo real.
-* **Mobile**: React Native (expo o CLI) para notificaciones y visualización rápida en móvil.
-* **DB**: PostgreSQL (recomendado) — tablas: `Conexion`, `Ataque`, `Mitigacion`, `Personal`, `Roles`, etc.
-* **Captura de paquetes**: Npcap (Windows) / libpcap (Linux/macOS).
+*   **Detección de Intrusiones Avanzada:** 🧠 Incorpora modelos de Machine Learning pre-entrenados con datasets de ciberseguridad (ej. UNSW\_NB15, CIC-IDS-2017) para identificar patrones de tráfico malicioso y anomalías en tiempo real.
+*   **Monitoreo en Tiempo Real:** 📊 Utiliza WebSockets (Django Channels y Daphne) para proporcionar actualizaciones instantáneas sobre el tráfico de red, conexiones y ataques detectados en el dashboard.
+*   **API RESTful Completa:** 🔗 Backend desarrollado con Django REST Framework para una gestión eficiente de datos de ataques, conexiones, mitigaciones, usuarios y roles.
+*   **Dashboard Interactivo (Web):** 🖥️ Interfaz de usuario intuitiva construida con React para visualizar métricas clave, alertas y gestionar el sistema de forma detallada.
+*   **Aplicación Móvil (React Native):** 📱 Acceso al monitoreo y notificaciones desde dispositivos móviles, permitiendo una vigilancia en movimiento.
+*   **Gestión Integral de Mitigaciones:** ⚙️ Funcionalidad para registrar, rastrear y gestionar las acciones tomadas para contrarrestar los ataques detectados.
+*   **Autenticación y Autorización Robusta:** 🔐 Sistema de usuarios y roles para controlar el acceso y los permisos a las diferentes funcionalidades del sistema.
+*   **Simulador de Tráfico:** 🚦 Incluye un simulador de tráfico para pruebas y desarrollo, facilitando la experimentación con la detección de intrusiones.
 
----
+## 🚀 Requisitos Previos
 
-## 📌 Requisitos
+Asegúrate de tener instalado lo siguiente antes de proceder con la instalación:
 
-* **Python** 3.13+
-* **PostgreSQL** 17 (u otra BD compatible Django)
-* **Node.js** 18+ (para frontend y mobile)
-* **Npcap** (Windows) o `libpcap` (Linux)
-* Permisos de administrador/root para capturar paquetes y bloquear IPs
-* (Opcional) GPU con drivers y TensorFlow compatible si entrenarás modelos grandes
+*   **Python 3.9+**
+*   **Node.js LTS** (incluye `npm` o `yarn`)
+*   **pip** (gestor de paquetes de Python)
+*   **PostgreSQL** (base de datos relacional)
+*   **Git**
 
----
+## 🛠️ Instrucciones de Instalación
+
+Sigue estos pasos para configurar y poner en marcha el proyecto en tu entorno local.
+
+### 1. Clonar el Repositorio
+```bash
+git clone https://github.com/alejav0240/CoderBits.git
+cd tu_repositorio
+```
+
+### 2. Configuración del Backend (Django)
+
+Navega al directorio `backend`, configura el entorno virtual, instala dependencias y prepara la base de datos.
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate  # En Windows: .\venv\Scripts\activate
+
+pip install -r requirements.txt
+
+# Configurar la base de datos PostgreSQL
+
+# 1. Crea una base de datos y un usuario en PostgreSQL (ej. 'ids_db', 'ids_user').
+
+# 2. Actualiza 'mi_api_django/settings.py' con tus credenciales de PostgreSQL.
+
+python manage.py makemigrations
+python manage.py migrate
+python manage.py createsuperuser # Opcional: para crear un usuario administrador
+python manage.py runserver
+```
+El servidor de Django se ejecutará en `http://127.0.0.1:8000/`. Para los WebSockets, deberás iniciar Daphne por separado:
+```bash
+daphne -b 0.0.0.0 -p 8001 mi_api_django.asgi:application
+```
+Daphne se ejecutará en `http://127.0.0.1:8001/`. Asegúrate de que tu frontend apunte a esta dirección para las conexiones WebSocket.
+
+### 3. Configuración del Módulo de Machine Learning
+
+Navega al directorio `ML-Analisis`, instala las dependencias y prepara tu entorno para los notebooks.
+```bash
+cd ML-Analisis
+python -m venv venv
+source venv/bin/activate  # En Windows: .\venv\Scripts\activate
+pip install -r requirements.txt
+
+# Para entrenar o experimentar con los modelos, abre los notebooks de Jupyter:
+jupyter notebook
+```
+Asegúrate de que los modelos `.h5` y `.pkl` generados por este módulo sean accesibles para el backend si se utilizan para inferencia en tiempo real.
+
+### 4. Configuración del Frontend Web (React)
+
+Navega al directorio `front-end` e instala las dependencias de Node.js.
+```bash
+cd front-end
+npm install # o yarn install
+npm run dev # o yarn dev
+```
+El frontend web se ejecutará en `http://localhost:5173/` (o un puerto similar). Asegúrate de que las variables de entorno o la configuración de la API en el frontend apunten correctamente a la URL de tu backend de Django.
+
+### 5. Configuración de la Aplicación Móvil (React Native)
+
+Navega al directorio `rn_Movil`. Asume que ya tienes configurado tu entorno de React Native (Android Studio/Xcode).
+```bash
+cd rn_Movil
+
+# Si existe un package.json, instala las dependencias:
+
+# npm install # o yarn install
+
+# Luego, ejecuta la aplicación en un emulador o dispositivo:
+
+# npx react-native run-android # Para Android
+
+# npx react-native run-ios     # Para iOS (requiere macOS y Xcode)
+```
+Asegúrate de que archivos como `base.js` u otros de configuración en la aplicación móvil apunten a la URL correcta de tu backend de Django.
+
+## 💡 Guía de Uso
+
+Una vez que todos los componentes estén en funcionamiento:
+
+1.  **Accede al Dashboard Web:** Abre tu navegador y ve a `http://localhost:5173/` (o el puerto de tu frontend React).
+2.  **Inicia Sesión:** Utiliza las credenciales de un usuario creado (ej. el superusuario de Django).
+3.  **Monitorea el Tráfico:** Observa las visualizaciones en tiempo real de las conexiones de red y las alertas de ataques.
+4.  **Gestiona Ataques y Mitigaciones:** Utiliza las secciones correspondientes para revisar ataques detectados y aplicar medidas de mitigación.
+5.  **Simulación (Opcional):** Puedes ejecutar `backend/ataques/traffic_simulator_no_api.py` para simular tráfico y observar cómo el sistema detecta y reacciona a las anomalías.
+
+## 📂 Estructura del Proyecto
+```
+CoderBits/
+├── ML-Analisis/             # Módulo de Machine Learning para análisis y detección de intrusiones
+│   ├── Datasets/            # Conjuntos de datos utilizados para el entrenamiento
+│   ├── ML/                  # Modelos entrenados (.h5, .pkl)
+│   ├── monitor_trafico.py   # Script para monitoreo de tráfico
+│   └── requirements.txt     # Dependencias de Python para ML
+├── backend/                 # API RESTful con Django, Django Channels y Daphne
+│   ├── app/                 # Aplicación Django base
+│   ├── ataques/             # Gestión de ataques y consumidores de WebSockets
+│   ├── conexiones/          # Monitoreo de conexiones y consumidores de WebSockets
+│   ├── dashboard/           # Datos para el dashboard
+│   ├── mi_api_django/       # Configuración principal del proyecto Django
+│   ├── mitigaciones/        # Gestión de acciones de mitigación
+│   ├── personales/          # Gestión de usuarios y autenticación
+│   ├── roles/               # Gestión de roles de usuario
+│   ├── staticfiles/         # Archivos estáticos
+│   ├── manage.py            # Utilidad de línea de comandos de Django
+│   └── requirements.txt     # Dependencias de Python para el backend
+├── front-end/               # Interfaz de usuario web con React
+│   ├── public/              # Archivos públicos
+│   ├── src/                 # Código fuente de React
+│   │   ├── components/      # Componentes reutilizables
+│   │   ├── context/         # Contextos de React (Autenticación, Usuarios)
+│   │   ├── features/        # Módulos de características (ataques, tráfico, mitigación)
+│   │   ├── layouts/         # Diseños de página
+│   │   ├── pages/           # Páginas principales de la aplicación
+│   │   └── services/        # Lógica para interactuar con la API
+│   ├── package.json         # Dependencias de Node.js para el frontend web
+│   └── vite.config.js       # Configuración de Vite
+├── rn_Movil/                # Aplicación móvil con React Native
+│   └── base.js              # Archivo base de la aplicación móvil (ej. configuración de API)
+├── LICENSE                  # Archivo de licencia
+└── README.md                # Este archivo
+```
+
+## 💻 Tecnologías Utilizadas
+
+*   **Backend:** Python, Django, Django REST Framework, Django Channels, Daphne
+*   **Machine Learning:** Python, Jupyter Notebook, TensorFlow, Keras, Scikit-learn, Pandas
+*   **Frontend Web:** JavaScript, React, Vite, Axios
+*   **Frontend Móvil:** JavaScript, React Native
+*   **Base de Datos:** PostgreSQL
+*   **Comunicación:** WebSockets
+
 
 ## ⚙️ Configuración (Backend)
 
@@ -124,67 +259,6 @@ sudo python monitor_cicids.py  # script de ejemplo que extrae 78 features y hace
 
 ---
 
-## 🧠 Machine Learning
-
-### Estructura y artefactos
-
-* `modelo_cicids2017.h5` — Modelo Keras (inferencia).
-* `scaler.pkl` — `StandardScaler` usado para normalizar features de entrada.
-* Features esperadas: **78 columnas** (CIC-IDS2017 — todas las columnas numéricas excepto `Label`).
-* Dataset: CIC-IDS2017 (usado para entrenamiento / validación).
-
-### Reentrenamiento (básico)
-
-1. Preparar CSVs del CIC-IDS2017 y concatenarlos.
-2. Limpieza: eliminar columnas no numéricas, strip de headers, manejo `NaN`, `inf`.
-3. Label encoding: `Label` → indices.
-4. Train/Test split (estratificado).
-5. `StandardScaler().fit(X_train)` → guardar con `joblib.dump(scaler, 'scaler.pkl')`
-6. Entrenar red (ej. Keras `Sequential` densa) con `sparse_categorical_crossentropy`.
-7. Guardar modelo: `model.save('modelo_cicids2017.h5')`
-
-### Inferencia en tiempo real
-
-* **Pipeline**:
-
-  1. Sniffer (Scapy) agrupa paquetes por flow key (src,dst,src_port,dst_port,proto).
-  2. Extractor calcula las **78 features** compatibles con CICFlowMeter.
-  3. `scaler.transform(features)` → `model.predict(...)`.
-  4. Resultado: enviar evento por WebSocket a `ws://127.0.0.1:8000/ws/alertas/` y guardar registro en DB.
-
-> ⚠️ Importante: asegúrate de que `scaler` y el modelo sean los mismos que se usaron en entrenamiento; si hay mismatch de número de features obtendrás errores.
-
----
-
-## 🧩 Frontend (React + Vite)
-
-### Estructura
-
-* Carpeta: `frontend/`
-* Stack: React + Vite, React Router, SWR/React Query o Redux, Tailwind (opcional).
-
-### Setup local
-
-```bash
-cd frontend
-npm install
-# dev
-npm run dev
-# build
-npm run build
-# preview del build
-npm run preview
-```
-
-### Variables de entorno
-
-Crea `.env.local` en `frontend/`:
-
-```
-VITE_API_BASE_URL=http://127.0.0.1:8000/api
-VITE_WS_URL=ws://127.0.0.1:8000/ws/monitoreo/
-```
-
 ### Funcionalidades principales del frontend
 
 * Dashboard en tiempo real (con WebSocket)
@@ -192,33 +266,6 @@ VITE_WS_URL=ws://127.0.0.1:8000/ws/monitoreo/
 * Visualización de conexiones y ataques detectados
 * Páginas de administración (usuarios, roles, mitigaciones)
 * Reportes y export (JSON/CSV)
-
----
-
-## 📱 Mobile (React Native)
-
-### Setup (con Expo recomendado)
-
-```bash
-# con expo
-npm install -g expo-cli
-cd mobile
-npm install
-expo start
-```
-
-Variables `.env` o config local:
-
-```
-API_BASE_URL=http://127.0.0.1:8000/api
-WS_URL=ws://127.0.0.1:8000/ws/alertas/
-```
-
-Funcionalidades:
-
-* Conexión a WebSocket para alertas push en la app
-* Listado de ataques recientes y detalles
-* Botón rápido para desactivar/activar monitoreo (si permisos lo permiten)
 
 ---
 
@@ -253,59 +300,3 @@ Funcionalidades:
 
 * `ws://127.0.0.1:8000/ws/monitoreo/` — eventos de conexiones en tiempo real
 * `ws://127.0.0.1:8000/ws/alertas/` — alertas de seguridad / ataques detectados
-
----
-
-## 🧪 Testing y QA
-
-* Test unitarios Django: `python manage.py test`
-* Pruebas manuales: usar tu plan de pruebas (Test Plan Excel)
-* Integración ML: validar pipeline de features (78 features) → scaler → modelo
-* Pruebas de stress: simular tráfico con `traffic_simulator_no_api.py`:
-
-```bash
-cd backend/ataques/
-python traffic_simulator_no_api.py -t <ip_dispositivo> -m all -d 15 --threads 4
-```
-
----
-
-## 🛠️ Troubleshooting común
-
-* **`ModuleNotFoundError: No module named 'sklearn'`** → `pip install scikit-learn`
-* **Scaler espera 78 features pero recibe X** → Asegúrate de extraer exactamente las 78 columnas en el mismo orden con el que entrenaste el scaler.
-* **Permisos para sniffing** → Ejecuta scripts con `sudo` o como administrador; instala Npcap en Windows.
-* **Daphne / Channels** → Asegúrate de tener `channels` y `daphne` instalados y configurado `ASGI_APPLICATION`.
-* **TensorFlow logs (oneDNN)**: mensaje informativo — no crítico.
-
----
-
-## 🧾 Buenas prácticas
-
-* Versiona tu `scaler.pkl` y `modelo_cicids2017.h5` junto con el commit que los generó (o registra hashes).
-* Mantén un `requirements.txt` actualizado (`pip freeze > requirements.txt`) y, preferiblemente, un archivo `environment.yml` o Dockerfile.
-* Documenta el **orden exacto de las 78 features** en un archivo (por ejemplo `features_list.csv`) y consúmelo desde tu extractor para evitar bugs.
-
----
-
-## 📁 Archivos importantes en el repo
-
-* `backend/` — código Django
-* `backend/monitor_cicids.py` — sniffer + extractor
-* `backend/models/` — modelos Django (Conexion, Ataque, Mitigacion, Personal)
-* `frontend/` — React + Vite
-* `mobile/` — React Native
-* `model/` — `modelo_cicids2017.h5`, `scaler.pkl`, `features_list.csv`
-* `docs/` — documentos (test plans, diagramas, etc.)
-
----
-
-## 👥 Contribución
-
-Si vas a contribuir:
-
-1. Revisa issues y ramas en GitHub.
-2. Crea branch: `feature/<descripcion>`
-3. PR con descripción y screenshots.
-4. Añade tests y documentación.
-
