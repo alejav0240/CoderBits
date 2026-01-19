@@ -5,6 +5,8 @@
 
 Este proyecto es un sistema integral de monitoreo de tráfico de red con capacidades avanzadas de detección de intrusiones y anomalías, potenciado por Machine Learning. Ofrece una plataforma robusta para la vigilancia de la red, la identificación proactiva de amenazas cibernéticas y la gestión de mitigaciones, todo accesible a través de interfaces web y móviles intuitivas.
 
+![Home Preview](./images/home.png)
+
 ## ✨ Características Principales
 
 *   **Detección de Intrusiones Avanzada:** 🧠 Incorpora modelos de Machine Learning pre-entrenados con datasets de ciberseguridad (ej. UNSW\_NB15, CIC-IDS-2017) para identificar patrones de tráfico malicioso y anomalías en tiempo real.
